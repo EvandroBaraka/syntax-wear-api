@@ -12,6 +12,7 @@ import 'dotenv/config';
 import cors from '@fastify/cors';
 // Importa o plugin Helmet para aumentar a segurança da API através de headers HTTP
 import helmet from '@fastify/helmet';
+import productRoutes from './routes/products.routes';
 
 // Define a porta do servidor, buscando das variáveis de ambiente ou usando 3000 como padrão
 const PORT = parseInt(process.env.PORT ?? '3000')
@@ -31,6 +32,8 @@ fastify.register(cors, {
 fastify.register(helmet, {
     contentSecurityPolicy: false,
 });
+
+fastify.register(productRoutes, { prefix: '/products' });
 
 // Define a rota principal (home) que retorna informações básicas da API
 fastify.get('/', async (request, reply) => {
