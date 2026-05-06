@@ -1,20 +1,41 @@
 {
+    /* 
+       Configurações do compilador TypeScript.
+       Este arquivo define como o TypeScript deve transformar o código em JavaScript.
+    */
     "compilerOptions": {
+        // Define a versão do JavaScript de saída (ES2022 é moderno e suporta as funcionalidades mais recentes)
         "target": "ES2022",
+        // Especifica qual sistema de módulos o código compilado deve usar (CommonJS é o padrão para Node.js)
         "module": "commonjs",
+        // Inclui as bibliotecas de tipos padrão do ES2022
         "lib": ["ES2022"],
+        // Diretório onde os arquivos JavaScript compilados serão salvos
         "outDir": "./dist",
+        // Diretório raiz onde os arquivos TypeScript de origem estão localizados
         "rootDir": "./src",
+        // Habilita todas as verificações de tipo rigorosas para maior segurança no código
         "strict": true,
+        // Garante compatibilidade entre módulos CommonJS e ES (ex: permite 'import' em vez de 'require')
         "esModuleInterop": true,
+        // Pula a verificação de tipos das bibliotecas externas (.d.ts) para acelerar a compilação
         "skipLibCheck": true,
+        // Garante que o caso (maiúsculas/minúsculas) dos nomes dos arquivos seja respeitado nas importações
         "forceConsistentCasingInFileNames": true,
+        // Permite a importação de arquivos .json diretamente no código TypeScript
         "resolveJsonModule": true,
+        // Define como o TypeScript deve procurar pelos módulos (estilo Node.js)
         "moduleResolution": "node",
+        // Gera arquivos de declaração (.d.ts) que descrevem os tipos do seu código
         "declaration": true,
+        // Cria mapas para os arquivos de declaração, permitindo navegar até o código original
         "declarationMap": true,
-        "sourceMap": true
+        // Gera mapas de origem (.map), permitindo depurar o código TypeScript original no navegador ou VS Code
+        "sourceMap": true,
+        "ignoreDeprecations": "6.0"
     },
+    // Define quais arquivos ou pastas o TypeScript deve incluir na compilação
     "include": ["src/**/*"],
+    // Define quais arquivos ou pastas devem ser ignorados pelo compilador
     "exclude": ["node_modules", "dist", "tests"]
 }

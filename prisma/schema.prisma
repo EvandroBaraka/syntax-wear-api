@@ -1,0 +1,40 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  firstName String
+  lastName  String
+  email     String    @unique
+  password  String
+  cpf       String?   @unique
+  phone     String?
+  birthDate DateTime?
+  createdAt DateTime  @default(now())
+  // relations
+  // orders     Order[]  <-- not added per request
+}
+
+model Product {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  description String?
+  price       Decimal
+  images      Json?
+  sizes       Json?
+  cores       Json?
+  stock       Int      @default(0)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  // relations
+  // category   Category? @relation(fields: [categoryId], references: [id])
+}

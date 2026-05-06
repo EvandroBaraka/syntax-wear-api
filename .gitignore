@@ -40,3 +40,6 @@ coverage/
 
 # Prisma
 prisma/migrations/
+
+# Misc
+db-password.txt
