@@ -19,8 +19,14 @@ model User {
   phone     String?
   birthDate DateTime?
   createdAt DateTime  @default(now())
+  role      Role      @default(USER)
   // relations
   // orders     Order[]  <-- not added per request
+}
+
+enum Role {
+  USER
+  ADMIN
 }
 
 model Product {

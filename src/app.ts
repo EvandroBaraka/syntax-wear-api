@@ -6,6 +6,8 @@ import helmet from "@fastify/helmet";
 import productRoutes from "./routes/products.routes";
 import swagger from "@fastify/swagger";
 import scalar from "@scalar/fastify-api-reference";
+import jwt from "@fastify/jwt";
+import authRoutes from "./routes/auth.routes";
 
 // Define a porta do servidor, buscando das variáveis de ambiente ou usando 3000 como padrão
 const PORT = parseInt(process.env.PORT ?? "3000");
@@ -13,6 +15,10 @@ const PORT = parseInt(process.env.PORT ?? "3000");
 // Instancia o Fastify e habilita o log para monitoramento de requisições
 const fastify = Fastify({
     logger: true,
+});
+
+fastify.register(jwt, {
+    secret: process.env.JWT_SECRET!,
 });
 
 // Registra o plugin de CORS permitindo qualquer origem e envio de credenciais
@@ -62,6 +68,7 @@ fastify.register(scalar, {
 });
 
 fastify.register(productRoutes, { prefix: "/products" });
+fastify.register(authRoutes, { prefix: "/auth" });
 
 // Define a rota principal (home) que retorna informações básicas da API
 fastify.get("/", async (request, reply) => {
