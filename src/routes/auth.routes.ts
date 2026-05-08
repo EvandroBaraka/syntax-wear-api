@@ -1,9 +1,9 @@
 import { FastifyInstance } from "fastify";
-import { register } from "../controllers/auth.controller";
+import { login, register } from "../controllers/auth.controller";
 
 export default function authRoutes(fastify: FastifyInstance) {
     fastify.post(
-        "/",
+        "/register",
         {
             schema: {
                 tags: ["Auth"],
@@ -37,22 +37,47 @@ export default function authRoutes(fastify: FastifyInstance) {
                         dateOfBirth: {
                             type: "string",
                             format: "date",
-                            description: "Data de nascimento do usuário (YYYY-MM-DD)",
+                            description:
+                                "Data de nascimento do usuário (YYYY-MM-DD)",
                         },
                         phone: {
                             type: "string",
-                            description: "Telefone do usuário (apenas números, com DDD)",
+                            description:
+                                "Telefone do usuário (apenas números, com DDD)",
                         },
                     },
-                    required: [
-                        "email",
-                        "password",
-                        "firstName",
-                        "lastName",
-                    ],
+                    required: ["email", "password", "firstName", "lastName"],
                 },
             },
         },
         register,
+    );
+
+    fastify.post(
+        "/login",
+        {
+            schema: {
+                tags: ["Auth"],
+                description:
+                    "Rota que autentica um usuário e retorna um token JWT",
+                body: {
+                    type: "object",
+                    properties: {
+                        email: {
+                            type: "string",
+                            format: "email",
+                            description: "Email do usuário",
+                        },
+                        password: {
+                            type: "string",
+                            minLength: 6,
+                            description: "Senha do usuário",
+                        },
+                    },
+                    required: ["email", "password"],
+                },
+            },
+        },
+        login,
     );
 }
