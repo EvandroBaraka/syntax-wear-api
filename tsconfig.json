@@ -5,9 +5,9 @@
     */
     "compilerOptions": {
         // Define a versão do JavaScript de saída (ES2022 é moderno e suporta as funcionalidades mais recentes)
-        "target": "ES2022",
+        "target": "ES2023",
         // Especifica qual sistema de módulos o código compilado deve usar (CommonJS é o padrão para Node.js)
-        "module": "commonjs",
+        "module": "esnext",
         // Inclui as bibliotecas de tipos padrão do ES2022
         "lib": ["ES2022"],
         // Diretório onde os arquivos JavaScript compilados serão salvos
@@ -25,7 +25,7 @@
         // Permite a importação de arquivos .json diretamente no código TypeScript
         "resolveJsonModule": true,
         // Define como o TypeScript deve procurar pelos módulos (estilo Node.js)
-        "moduleResolution": "node",
+        "moduleResolution": "bundler",
         // Gera arquivos de declaração (.d.ts) que descrevem os tipos do seu código
         "declaration": true,
         // Cria mapas para os arquivos de declaração, permitindo navegar até o código original
