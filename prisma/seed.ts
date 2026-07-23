@@ -1,10 +1,11 @@
 import "dotenv/config";
+import { prisma } from "../src/utils/prisma";
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-const prisma = new PrismaClient({
-    adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
-});
+// const prisma = new PrismaClient({
+//     adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL }),
+// });
 
 const products = [
     {
@@ -17,7 +18,7 @@ const products = [
             "/images/camiseta-basics-2.png",
         ],
         sizes: ["P", "M", "G", "GG"],
-        cores: ["preto", "branco", "cinza"],
+        colors: ["preto", "branco", "cinza"],
         stock: 55,
         active: true,
     },
@@ -28,7 +29,7 @@ const products = [
         price: 149.9,
         images: ["/images/moletom-comfort-1.png"],
         sizes: ["M", "G", "GG"],
-        cores: ["azul", "verde"],
+        colors: ["azul", "verde"],
         stock: 35,
         active: true,
     },
@@ -42,7 +43,7 @@ const products = [
             "/images/jaqueta-street-2.png",
         ],
         sizes: ["P", "M", "G"],
-        cores: ["preto", "marrom"],
+        colors: ["preto", "marrom"],
         stock: 20,
         active: true,
     },
@@ -53,7 +54,7 @@ const products = [
         price: 129.9,
         images: ["/images/calca-flex-1.png"],
         sizes: ["P", "M", "G", "GG"],
-        cores: ["cinza", "preto"],
+        colors: ["cinza", "preto"],
         stock: 28,
         active: true,
     },
@@ -64,7 +65,7 @@ const products = [
         price: 89.9,
         images: ["/images/short-breeze-1.png"],
         sizes: ["P", "M", "G"],
-        cores: ["azul", "branco"],
+        colors: ["azul", "branco"],
         stock: 40,
         active: true,
     },
@@ -75,7 +76,7 @@ const products = [
         price: 49.9,
         images: ["/images/bone-classic-1.png"],
         sizes: ["P", "M", "G"],
-        cores: ["preto", "bege"],
+        colors: ["preto", "bege"],
         stock: 70,
         active: true,
     },
@@ -86,7 +87,7 @@ const products = [
         price: 299.9,
         images: ["/images/tenis-run-1.png", "/images/tenis-run-2.png"],
         sizes: ["38", "39", "40", "41", "42"],
-        cores: ["branco", "cinza"],
+        colors: ["branco", "cinza"],
         stock: 18,
         active: true,
     },
@@ -97,7 +98,7 @@ const products = [
         price: 89.9,
         images: ["/images/camiseta-vintage-1.png"],
         sizes: ["P", "M", "G"],
-        cores: ["vinho", "azul-marinho"],
+        colors: ["vinho", "azul-marinho"],
         stock: 26,
         active: true,
     },
@@ -108,7 +109,7 @@ const products = [
         price: 59.9,
         images: ["/images/regata-cool-1.png"],
         sizes: ["P", "M", "G"],
-        cores: ["branco", "preto"],
+        colors: ["branco", "preto"],
         stock: 50,
         active: true,
     },
@@ -119,7 +120,7 @@ const products = [
         price: 139.9,
         images: ["/images/calca-jogger-1.png"],
         sizes: ["P", "M", "G"],
-        cores: ["cinza", "preto"],
+        colors: ["cinza", "preto"],
         stock: 32,
         active: true,
     },
@@ -131,7 +132,7 @@ async function main() {
             ...product,
             images: product.images,
             sizes: product.sizes,
-            cores: product.cores,
+            colors: product.colors,
         })),
         skipDuplicates: true,
     });

@@ -8,14 +8,6 @@ export const errorHandler = (
 ) => {
     console.log("Error handler called with error:", error);
 
-    // Verifica se é um erro de validação de Schema nativo do Fastify (Ajv)
-    if (error.validation) {
-        return reply.status(400).send({
-            message: "Erro de validação de rota",
-            errors: error.validation,
-        });
-    }
-
     // Loga o erro para análise posterior
     if (error instanceof ZodError) {
         console.log("entrou no zod error");
@@ -25,7 +17,14 @@ export const errorHandler = (
         });
     }
 
+    if (error.code === "FST_ERR_VALIDATION") {
+        return reply.status(400).send({
+            message: "Erro de validação do (fastify)",
+            errors: error.validation,
+        });
+    }
+
     return reply
         .status(500)
-        .send({ error: "Erro interno do servidor sfasfasfas" });
+        .send({ error: "Erro interno do servidor", debug: error.message });
 };

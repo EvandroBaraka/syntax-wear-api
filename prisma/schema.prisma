@@ -37,7 +37,7 @@ model Product {
   price       Decimal
   images      Json?
   sizes       Json?
-  cores       Json?
+  colors      Json?
   stock       Int      @default(0)
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())

@@ -1,5 +1,5 @@
 import { prisma } from "../utils/prisma";
-import { ProductFilters } from "../types";
+import { CreateProduct, ProductFilters } from "../types";
 
 export const getProducts = async (filters: ProductFilters) => {
     // Desestrutura os filtros recebidos, definindo valores padrão para página (1) e limite (10)
@@ -70,10 +70,37 @@ export const getProducts = async (filters: ProductFilters) => {
             limit, // Limite de itens por página
             totalPages: Math.ceil(total / limit), // Cálculo total de páginas disponíveis
         };
-
     } catch (error) {
         // Registra o erro no log e repassa a exceção
         console.error("Error fetching products:", error);
         throw error;
     }
+};
+
+export const getProductById = async (id: number) => {
+    const product = await prisma.product.findUnique({
+        where: { id },
+    });
+
+    if (!product) {
+        throw new Error("Produto não encontrado");
+    }
+
+    return product;
+};
+
+export const createProduct = async (data: CreateProduct) => {
+    const existingProduct = await prisma.product.findUnique({
+        where: { slug: data.slug },
+    });
+
+    if (existingProduct) {
+        throw new Error("Slug do produto já existe. Por favor, escolha outro nome para o produto.");
+    }
+
+    const newProduct = await prisma.product.create({
+        data,
+    });
+
+    return newProduct;
 };
