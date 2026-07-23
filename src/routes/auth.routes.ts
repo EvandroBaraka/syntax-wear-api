@@ -14,12 +14,10 @@ export default function authRoutes(fastify: FastifyInstance) {
                     properties: {
                         email: {
                             type: "string",
-                            format: "email",
                             description: "Email do usuário",
                         },
                         password: {
                             type: "string",
-                            minLength: 6,
                             description: "Senha do usuário",
                         },
                         firstName: {
@@ -36,7 +34,6 @@ export default function authRoutes(fastify: FastifyInstance) {
                         },
                         dateOfBirth: {
                             type: "string",
-                            format: "date",
                             description:
                                 "Data de nascimento do usuário (YYYY-MM-DD)",
                         },

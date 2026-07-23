@@ -8,6 +8,7 @@ import swagger from "@fastify/swagger";
 import scalar from "@scalar/fastify-api-reference";
 import jwt from "@fastify/jwt";
 import authRoutes from "./routes/auth.routes";
+import { errorHandler } from "./middlewares/error.middleware";
 
 // Define a porta do servidor, buscando das variáveis de ambiente ou usando 3000 como padrão
 const PORT = parseInt(process.env.PORT ?? "3000");
@@ -86,6 +87,8 @@ fastify.get("/health", async (request, reply) => {
         timeStamp: new Date().toISOString(),
     };
 });
+
+fastify.setErrorHandler(errorHandler);
 
 // Tenta iniciar o servidor na porta definida
 try {
