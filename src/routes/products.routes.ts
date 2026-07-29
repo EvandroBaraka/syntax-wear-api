@@ -1,6 +1,7 @@
 import { FastifyInstance } from "fastify";
 import {
     createNewProduct,
+    deleteExistingProduct,
     getProduct,
     listProducts,
     updateExistingProduct,
@@ -8,7 +9,7 @@ import {
 import { authenticate } from "../middlewares/auth.middleware";
 
 export default function productRoutes(fastify: FastifyInstance) {
-    // fastify.addHook("onRequest", authenticate);
+    fastify.addHook("onRequest", authenticate);
     fastify.get(
         "/",
         {
@@ -321,5 +322,46 @@ export default function productRoutes(fastify: FastifyInstance) {
             },
         },
         updateExistingProduct,
+    );
+
+    fastify.delete(
+        "/:id",
+        {
+            schema: {
+                tags: ["Products"],
+                description: "Rota que remove um produto pelo ID",
+                params: {
+                    type: "object",
+                    properties: {
+                        id: { type: "number" },
+                    },
+                    required: ["id"],
+                },
+                response: {
+                    200: {
+                        description: "Produto deletado com sucesso",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    400: {
+                        description: "Requisição inválida",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    404: {
+                        description: "Produto não encontrado",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                },
+            },
+        },
+        deleteExistingProduct,
     );
 }

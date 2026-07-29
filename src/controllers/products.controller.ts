@@ -5,9 +5,11 @@ import {
     getProductById,
     createProduct,
     updateProduct,
+    deleteProduct,
 } from "../services/products.service";
 import {
     createProductSchema,
+    deleteProductSchema,
     productFilterSchema,
     updateProductSchema,
 } from "../utils/validators";
@@ -67,4 +69,18 @@ export const updateExistingProduct = async (
 
     const product = await updateProduct(Number(id), validate);
     reply.status(200).send(product);
+};
+
+export const deleteExistingProduct = async (
+    request: FastifyRequest<{ Params: { id: number } }>,
+    reply: FastifyReply,
+) => {
+    const { id } = request.params;
+
+    const validate = deleteProductSchema.parse({ id: Number(id) });
+
+    await deleteProduct(validate.id);
+    reply
+        .status(200)
+        .send({ message: "Produto removido com sucesso (soft delete)" });
 };
