@@ -64,7 +64,7 @@ fastify.register(swagger, {
 fastify.register(scalar, {
     routePrefix: "/api-docs",
     configuration: {
-        theme: "dark",
+        theme: "deepSpace",
     },
 });
 
