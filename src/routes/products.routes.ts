@@ -9,7 +9,7 @@ import {
 import { authenticate } from "../middlewares/auth.middleware";
 
 export default function productRoutes(fastify: FastifyInstance) {
-    fastify.addHook("onRequest", authenticate);
+    // fastify.addHook("onRequest", authenticate);
     fastify.get(
         "/",
         {
@@ -24,6 +24,7 @@ export default function productRoutes(fastify: FastifyInstance) {
                         minPrice: { type: "number" },
                         maxPrice: { type: "number" },
                         search: { type: "string" },
+                        categoryId: { type: "number" },
                         sortBy: {
                             type: "string",
                             enum: ["price", "name", "createdAt"],
@@ -37,38 +38,55 @@ export default function productRoutes(fastify: FastifyInstance) {
                 response: {
                     200: {
                         description: "Lista de produtos retornada com sucesso",
-                        type: "array",
-                        items: {
-                            type: "object",
-                            properties: {
-                                id: { type: "number" },
-                                name: { type: "string" },
-                                price: { type: "number" },
-                                description: { type: "string" },
-                                stock: { type: "number" },
-                                sizes: {
-                                    type: "array",
-                                    items: { type: "string" },
-                                },
-                                images: {
-                                    type: "array",
-                                    items: { type: "string" },
-                                },
-                                colors: {
-                                    type: "array",
-                                    items: { type: "string" },
-                                },
-                                slug: { type: "string" },
-                                active: { type: "boolean" },
-                                createdAt: {
-                                    type: "string",
-                                    format: "date-time",
-                                },
-                                updatedAt: {
-                                    type: "string",
-                                    format: "date-time",
+                        type: "object",
+                        properties: {
+                            data: {
+                                type: "array",
+                                items: {
+                                    type: "object",
+                                    properties: {
+                                        id: { type: "number" },
+                                        name: { type: "string" },
+                                        price: { type: "number" },
+                                        description: { type: "string" },
+                                        stock: { type: "number" },
+                                        sizes: {
+                                            type: "array",
+                                            items: { type: "string" },
+                                        },
+                                        images: {
+                                            type: "array",
+                                            items: { type: "string" },
+                                        },
+                                        colors: {
+                                            type: "array",
+                                            items: { type: "string" },
+                                        },
+                                        slug: { type: "string" },
+                                        categoryId: { type: "number" },
+                                        category: {
+                                            type: "object",
+                                            properties: {
+                                                id: { type: "number" },
+                                                name: { type: "string" },
+                                            },
+                                        },
+                                        active: { type: "boolean" },
+                                        createdAt: {
+                                            type: "string",
+                                            format: "date-time",
+                                        },
+                                        updatedAt: {
+                                            type: "string",
+                                            format: "date-time",
+                                        },
+                                    },
                                 },
                             },
+                            total: { type: "number" },
+                            page: { type: "number" },
+                            limit: { type: "number" },
+                            totalPages: { type: "number" },
                         },
                     },
                     400: {
@@ -121,6 +139,14 @@ export default function productRoutes(fastify: FastifyInstance) {
                                 items: { type: "string" },
                             },
                             slug: { type: "string" },
+                            categoryId: { type: "number" },
+                            category: {
+                                type: "object",
+                                properties: {
+                                    id: { type: "number" },
+                                    name: { type: "string" },
+                                },
+                            },
                             active: { type: "boolean" },
                             updatedAt: { type: "string", format: "date-time" },
                         },
@@ -155,16 +181,16 @@ export default function productRoutes(fastify: FastifyInstance) {
                     "name",
                     "description",
                     "price",
-                    "slug",
-                    "active",
-                    "stock",
+                    "categoryId",
                 ],
                 body: {
                     type: "object",
                     properties: {
                         name: { type: "string" },
                         description: { type: "string" },
+                        slug: { type: "string" },
                         price: { type: "number" },
+                        categoryId: { type: "number" },
                         active: { type: "boolean" },
                         stock: { type: "number" },
                         sizes: {
@@ -186,32 +212,39 @@ export default function productRoutes(fastify: FastifyInstance) {
                         description: "Produto criado com sucesso",
                         type: "object",
                         properties: {
-                            id: { type: "number" },
-                            name: { type: "string" },
-                            price: { type: "number" },
-                            description: { type: "string" },
-                            stock: { type: "number" },
-                            sizes: {
-                                type: "array",
-                                items: { type: "string" },
-                            },
-                            images: {
-                                type: "array",
-                                items: { type: "string" },
-                            },
-                            colors: {
-                                type: "array",
-                                items: { type: "string" },
-                            },
-                            slug: { type: "string" },
-                            active: { type: "boolean" },
-                            createdAt: {
-                                type: "string",
-                                format: "date-time",
-                            },
-                            updatedAt: {
-                                type: "string",
-                                format: "date-time",
+                            message: { type: "string" },
+                            product: {
+                                type: "object",
+                                properties: {
+                                    id: { type: "number" },
+                                    name: { type: "string" },
+                                    description: { type: "string" },
+                                    price: { type: "number" },
+                                    categoryId: { type: "number" },
+                                    slug: { type: "string" },
+                                    active: { type: "boolean" },
+                                    stock: { type: "number" },
+                                    sizes: {
+                                        type: "array",
+                                        items: { type: "string" },
+                                    },
+                                    images: {
+                                        type: "array",
+                                        items: { type: "string" },
+                                    },
+                                    colors: {
+                                        type: "array",
+                                        items: { type: "string" },
+                                    },
+                                    createdAt: {
+                                        type: "string",
+                                        format: "date-time",
+                                    },
+                                    updatedAt: {
+                                        type: "string",
+                                        format: "date-time",
+                                    },
+                                },
                             },
                         },
                     },
@@ -272,6 +305,7 @@ export default function productRoutes(fastify: FastifyInstance) {
                             type: "array",
                             items: { type: "string" },
                         },
+                        categoryId: { type: "number" },
                     },
                 },
                 response: {
@@ -279,17 +313,32 @@ export default function productRoutes(fastify: FastifyInstance) {
                         description: "Produto atualizado com sucesso",
                         type: "object",
                         properties: {
-                            id: { type: "number" },
-                            name: { type: "string" },
-                            price: { type: "number" },
-                            colors: {
-                                type: "array",
-                                items: { type: "string" },
-                            },
-                            stock: { type: "number" },
-                            tags: {
-                                type: "array",
-                                items: { type: "string" },
+                            message: { type: "string" },
+                            product: {
+                                type: "object",
+                                properties: {
+                                    id: { type: "number" },
+                                    name: { type: "string" },
+                                    price: { type: "number" },
+                                    categoryId: { type: "number" },
+                                    colors: {
+                                        type: "array",
+                                        items: { type: "string" },
+                                    },
+                                    stock: { type: "number" },
+                                    tags: {
+                                        type: "array",
+                                        items: { type: "string" },
+                                    },
+                                    sizes: {
+                                        type: "array",
+                                        items: { type: "string" },
+                                    },
+                                    images: {
+                                        type: "array",
+                                        items: { type: "string" },
+                                    },
+                                },
                             },
                         },
                     },
@@ -339,7 +388,8 @@ export default function productRoutes(fastify: FastifyInstance) {
                 },
                 response: {
                     200: {
-                        description: "Produto deletado com sucesso",
+                        description:
+                            "Produto removido com sucesso (soft delete)",
                         type: "object",
                         properties: {
                             message: { type: "string" },

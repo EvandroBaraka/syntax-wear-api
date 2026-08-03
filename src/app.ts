@@ -4,6 +4,7 @@ import cors from "@fastify/cors";
 // Plugin Helmet para aumentar a segurança da API através de headers HTTP
 import helmet from "@fastify/helmet";
 import productRoutes from "./routes/products.routes";
+import categoryRoutes from "./routes/categories.routes";
 import swagger from "@fastify/swagger";
 import scalar from "@scalar/fastify-api-reference";
 import jwt from "@fastify/jwt";
@@ -70,6 +71,8 @@ fastify.register(scalar, {
 
 fastify.register(productRoutes, { prefix: "/products" });
 fastify.register(authRoutes, { prefix: "/auth" });
+
+fastify.register(categoryRoutes, { prefix: "/categories" });
 
 // Define a rota principal (home) que retorna informações básicas da API
 fastify.get("/", async (request, reply) => {

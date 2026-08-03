@@ -166,6 +166,18 @@ const products = [
         stock: 32,
         active: true,
     },
+    {
+        name: "Calça Deadpool",
+        slug: "calca-deadpool",
+        categorySlug: "calcas",
+        description: "Calça com design do herói Deadpool.",
+        price: 139.9,
+        images: [],
+        sizes: ["P", "M", "G"],
+        colors: ["cinza", "preto"],
+        stock: 32,
+        active: true,
+    },
 ];
 
 async function main() {
@@ -201,7 +213,7 @@ async function main() {
         skipDuplicates: true,
     });
 
-    console.log("Seed concluída: 10 produtos inseridos ou já existentes.");
+    console.log("Seed concluída: produtos inseridos ou já existentes.");
 }
 
 main()

@@ -42,9 +42,9 @@ export const createNewProduct = async (
 
     const validate = createProductSchema.parse(body);
 
-    await createProduct(validate);
+    const product = await createProduct(validate);
 
-    reply.status(201).send({ message: "Produto criado com sucesso" });
+    reply.status(201).send({ message: "Produto criado com sucesso", product });
 };
 
 export const updateExistingProduct = async (
@@ -68,7 +68,7 @@ export const updateExistingProduct = async (
     }
 
     const product = await updateProduct(Number(id), validate);
-    reply.status(200).send(product);
+    reply.status(200).send({ message: "Produto atualizado com sucesso", product });
 };
 
 export const deleteExistingProduct = async (

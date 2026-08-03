@@ -35,8 +35,23 @@ export const productFilterSchema = z.object({
         .nonnegative("Preço máximo deve ser no mínimo 0")
         .optional(),
     search: z.string().optional(),
+    categoryId: z.coerce.number().int().optional(),
     sortBy: z.enum(["price", "name", "createdAt"]).optional(),
     sortOrder: z.enum(["asc", "desc"]).optional(),
+});
+
+export const categoryFilterSchema = z.object({
+    page: z.coerce
+        .number()
+        .int()
+        .min(1, "Página deve ser no mínimo 1")
+        .optional(),
+    limit: z.coerce
+        .number()
+        .int()
+        .min(1, "Limite deve ser no mínimo 1")
+        .optional(),
+    search: z.string().optional(),
 });
 
 export const createProductSchema = z.object({
@@ -49,6 +64,7 @@ export const createProductSchema = z.object({
     stock: z.number().int().nonnegative("Estoque deve ser no mínimo 0"),
     active: z.boolean(),
     images: z.array(z.string()).optional(),
+    categoryId: z.number().int().min(1, "ID da categoria inválido"),
 });
 
 export const updateProductSchema = z.object({
@@ -68,6 +84,7 @@ export const updateProductSchema = z.object({
         .optional(),
     active: z.boolean().optional(),
     images: z.array(z.string()).optional(),
+    categoryId: z.number().int().min(1, "ID da categoria inválido").optional(),
 });
 
 export const deleteProductSchema = z.object({

@@ -9,12 +9,18 @@ export const getProducts = async (filters: ProductFilters) => {
         minPrice,
         maxPrice,
         search,
+        categoryId,
         sortBy = "createdAt",
         sortOrder = "desc",
     } = filters;
 
     // Inicializa o objeto de condições (where) que será usado na consulta do Prisma
     const where: any = {};
+
+    //Filtro por categoria
+    if (categoryId) {
+        where.categoryId = categoryId;
+    }
 
     // Se houver filtros de preço mínimo ou máximo, constrói a condição no campo 'price'
     if (minPrice !== undefined || maxPrice !== undefined) {
@@ -80,6 +86,7 @@ export const getProducts = async (filters: ProductFilters) => {
 export const getProductById = async (id: number) => {
     const product = await prisma.product.findUnique({
         where: { id },
+        include: { category: true },
     });
 
     if (!product) {
