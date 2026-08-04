@@ -1,8 +1,10 @@
 import { FastifyInstance } from "fastify";
 import {
     createCategory,
+    deleteCategory,
     getCategory,
     listCategories,
+    updateCategory,
 } from "../controllers/categories.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 
@@ -177,5 +179,128 @@ export default function categoryRoutes(fastify: FastifyInstance) {
             },
         },
         createCategory,
+    );
+
+    fastify.put(
+        "/:id",
+        {
+            schema: {
+                tags: ["Categories"],
+                description: "Rota que atualiza uma categoria existente",
+                security: [{ bearerAuth: [] }],
+                params: {
+                    type: "object",
+                    properties: {
+                        id: { type: "number" },
+                    },
+                    required: ["id"],
+                },
+                body: {
+                    type: "object",
+                    properties: {
+                        name: { type: "string" },
+                        description: { type: "string" },
+                        active: { type: "boolean" },
+                    },
+                },
+                response: {
+                    200: {
+                        description: "Categoria atualizada com sucesso",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                            category: {
+                                type: "object",
+                                properties: {
+                                    id: { type: "number" },
+                                    name: { type: "string" },
+                                    slug: { type: "string" },
+                                    description: { type: "string" },
+                                    active: { type: "boolean" },
+                                },
+                            },
+                        },
+                    },
+                    400: {
+                        description: "Requisição inválida",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    401: {
+                        description: "Não autorizado",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    404: {
+                        description: "Categoria não encontrada",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    409: {
+                        description: "Categoria já existe",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                },
+            },
+        },
+        updateCategory,
+    );
+
+    fastify.delete(
+        "/:id",
+        {
+            schema: {
+                tags: ["Categories"],
+                description: "Rota que remove uma categoria por soft delete",
+                security: [{ bearerAuth: [] }],
+                params: {
+                    type: "object",
+                    properties: {
+                        id: { type: "number" },
+                    },
+                    required: ["id"],
+                },
+                response: {
+                    200: {
+                        description: "Categoria removida com sucesso",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    400: {
+                        description: "Requisição inválida",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    401: {
+                        description: "Não autorizado",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    404: {
+                        description: "Categoria não encontrada",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                },
+            },
+        },
+        deleteCategory,
     );
 }

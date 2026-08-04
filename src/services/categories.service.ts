@@ -1,5 +1,5 @@
 import { prisma } from "../utils/prisma";
-import { CategoryFilters, CreateCategory } from "../types";
+import { CategoryFilters, CreateCategory, UpdateCategory } from "../types";
 import slugify from "slugify";
 
 export const getCategories = async (filters: CategoryFilters) => {
@@ -77,5 +77,49 @@ export const createCategory = async (data: CreateCategory) => {
             description: data.description,
             active: data.active ?? true,
         },
+    });
+};
+
+export const updateCategory = async (id: number, data: UpdateCategory) => {
+    const existingCategory = await prisma.category.findUnique({
+        where: { id },
+    });
+
+    if (!existingCategory) {
+        throw new Error("Categoria não encontrada");
+    }
+
+    if (data.slug) {
+        const slugExists = await prisma.category.findUnique({
+            where: { slug: data.slug },
+        });
+
+        if (slugExists && slugExists.id !== id) {
+            throw new Error(
+                "Slug da categoria já existe. Escolha outro nome para a categoria.",
+            );
+        }
+    }
+
+    const updatedCategory = await prisma.category.update({
+        where: { id },
+        data,
+    });
+
+    return updatedCategory;
+};
+
+export const deleteCategory = async (id: number) => {
+    const existingCategory = await prisma.category.findUnique({
+        where: { id },
+    });
+
+    if (!existingCategory) {
+        throw new Error("Categoria não encontrada");
+    }
+
+    await prisma.category.update({
+        where: { id },
+        data: { active: false },
     });
 };
