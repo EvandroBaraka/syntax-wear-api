@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
 import {
+    createCategory,
     getCategory,
     listCategories,
 } from "../controllers/categories.controller";
@@ -56,8 +57,7 @@ export default function categoryRoutes(fastify: FastifyInstance) {
                             total: { type: "number" },
                             page: { type: "number" },
                             limit: { type: "number" },
-                            totalPages: { type: "number" 
-                            },
+                            totalPages: { type: "number" },
                         },
                     },
                     401: {
@@ -116,5 +116,66 @@ export default function categoryRoutes(fastify: FastifyInstance) {
             },
         },
         getCategory,
+    );
+
+    fastify.post(
+        "/",
+        {
+            schema: {
+                tags: ["Categories"],
+                description: "Rota que cria uma nova categoria",
+                security: [{ bearerAuth: [] }],
+                body: {
+                    type: "object",
+                    properties: {
+                        name: { type: "string" },
+                        description: { type: "string" },
+                        active: { type: "boolean" },
+                    },
+                    required: ["name"],
+                },
+                response: {
+                    201: {
+                        description: "Categoria criada com sucesso",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                            category: {
+                                type: "object",
+                                properties: {
+                                    id: { type: "number" },
+                                    name: { type: "string" },
+                                    slug: { type: "string" },
+                                    description: { type: "string" },
+                                    active: { type: "boolean" },
+                                },
+                            },
+                        },
+                    },
+                    400: {
+                        description: "Requisição inválida",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    401: {
+                        description: "Não autorizado",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    409: {
+                        description: "Categoria já existe",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                },
+            },
+        },
+        createCategory,
     );
 }

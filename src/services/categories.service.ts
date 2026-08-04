@@ -1,5 +1,6 @@
 import { prisma } from "../utils/prisma";
-import { CategoryFilters } from "../types";
+import { CategoryFilters, CreateCategory } from "../types";
+import slugify from "slugify";
 
 export const getCategories = async (filters: CategoryFilters) => {
     const { search, page = 1, limit = 10 } = filters;
@@ -47,4 +48,34 @@ export const getCategoryById = async (id: number) => {
     }
 
     return category;
+};
+
+export const createCategory = async (data: CreateCategory) => {
+    const slug =
+        data.slug ??
+        slugify(data.name, { lower: true, strict: true, locale: "pt" });
+
+    const existingCategory = await prisma.category.findFirst({
+        where: {
+            OR: [
+                { slug },
+                { name: { equals: data.name, mode: "insensitive" } },
+            ],
+        },
+    });
+
+    if (existingCategory) {
+        throw new Error(
+            "Slug da categoria já existe. Escolha outro slug ou nome.",
+        );
+    }
+
+    return prisma.category.create({
+        data: {
+            name: data.name,
+            slug,
+            description: data.description,
+            active: data.active ?? true,
+        },
+    });
 };

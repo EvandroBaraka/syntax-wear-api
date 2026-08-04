@@ -15,6 +15,12 @@ export interface CategoryFilters {
     search?: string;
 }
 
+export interface CreateCategory {
+    name: string;
+    slug?: string;
+    description?: string;
+    active?: boolean;
+}
 
 export interface AuthRequest {
     email: string;
