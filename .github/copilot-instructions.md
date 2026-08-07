@@ -13,7 +13,8 @@
 - Valide entradas com os utilitários e padrões existentes em `src/utils/validators.ts`; não confie apenas na tipagem do TypeScript em runtime.
 - Preserve o fluxo de autenticação baseado em JWT e middleware. Não exponha senhas, tokens ou segredos nas respostas e nos logs.
 - Para valores monetários, respeite o tipo `Decimal` definido no Prisma e evite conversões silenciosas para ponto flutuante.
-- Prefira desativação lógica de produtos (`active: false`) quando a operação for uma exclusão de catálogo, conforme o service atual.
+- Prefira desativação lógica de produtos e categorias (`active: false`) quando a operação for uma exclusão de catálogo, conforme o service atual.
+- Para categorias, siga o padrão já implementado de CRUD com listagem, criação, atualização e soft delete em `src/routes/categories.routes.ts`, `src/controllers/categories.controller.ts` e `src/services/categories.service.ts`.
 
 ## Banco de Dados
 

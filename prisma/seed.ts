@@ -180,6 +180,48 @@ const products = [
     },
 ];
 
+const orders = [
+    {
+        userEmail: "admin@syntaxwear.com",
+        total: 219.8,
+        status: "PAID",
+        shippingAddress: {
+            cep: "01310100",
+            street: "Av. Paulista",
+            number: "1578",
+            complement: "Apto 101",
+            neighborhood: "Bela Vista",
+            city: "São Paulo",
+            state: "SP",
+            country: "BR",
+        },
+        paymentMethod: "credit_card",
+        items: [
+            { productSlug: "camiseta-syntax-basics", quantity: 2, size: "M" },
+            { productSlug: "moletom-syntax-comfort", quantity: 1, size: "G" },
+        ],
+    },
+    {
+        userEmail: "cliente@syntaxwear.com",
+        total: 249.9,
+        status: "PENDING",
+        shippingAddress: {
+            cep: "22041001",
+            street: "Rua das Flores",
+            number: "45",
+            complement: "Casa 2",
+            neighborhood: "Copacabana",
+            city: "Rio de Janeiro",
+            state: "RJ",
+            country: "BR",
+        },
+        paymentMethod: "pix",
+        items: [
+            { productSlug: "jaqueta-syntax-street", quantity: 1, size: "M" },
+        ],
+    },
+];
+
 async function main() {
     const categoryIds = new Map<string, number>();
 
@@ -213,7 +255,105 @@ async function main() {
         skipDuplicates: true,
     });
 
-    console.log("Seed concluída: produtos inseridos ou já existentes.");
+    const existingProducts = await prisma.product.findMany({
+        select: { id: true, slug: true, price: true, stock: true },
+    });
+    const productBySlug = new Map(
+        existingProducts.map((product) => [product.slug, product]),
+    );
+
+    const users = [
+        {
+            email: "admin@syntaxwear.com",
+            firstName: "Admin",
+            lastName: "Syntax",
+            password: "admin123",
+            role: "ADMIN",
+        },
+        {
+            email: "cliente@syntaxwear.com",
+            firstName: "Cliente",
+            lastName: "Syntax",
+            password: "cliente123",
+            role: "USER",
+        },
+    ];
+
+    for (const user of users) {
+        await prisma.user.upsert({
+            where: { email: user.email },
+            update: {
+                firstName: user.firstName,
+                lastName: user.lastName,
+                role: user.role as "ADMIN" | "USER",
+            },
+            create: {
+                ...user,
+                password: user.password,
+            },
+        });
+    }
+
+    const existingUsers = await prisma.user.findMany({
+        select: { id: true, email: true },
+    });
+    const userByEmail = new Map(
+        existingUsers.map((user) => [user.email, user.id]),
+    );
+
+    for (const orderSeed of orders) {
+        const userId = userByEmail.get(orderSeed.userEmail);
+
+        if (!userId) {
+            continue;
+        }
+
+        const existingOrder = await prisma.order.findFirst({
+            where: {
+                userId,
+                status: orderSeed.status as "PAID" | "PENDING",
+                createdAt: {
+                    gte: new Date(new Date().setHours(0, 0, 0, 0)),
+                },
+            },
+        });
+
+        if (existingOrder) {
+            continue;
+        }
+
+        const createdOrder = await prisma.order.create({
+            data: {
+                userId,
+                total: orderSeed.total,
+                status: orderSeed.status as "PAID" | "PENDING",
+                shippingAddress: orderSeed.shippingAddress,
+                paymentMethod: orderSeed.paymentMethod,
+            },
+        });
+
+        for (const item of orderSeed.items) {
+            const product = productBySlug.get(item.productSlug);
+
+            if (!product) {
+                continue;
+            }
+
+            await prisma.orderItem.create({
+                data: {
+                    orderId: createdOrder.id,
+                    productId: product.id,
+                    price: product.price,
+                    quantity: item.quantity,
+                    size: item.size,
+                },
+            });
+        }
+    }
+
+    console.log(
+        "Seed concluída: categorias, produtos, usuários e pedidos inseridos ou já existentes.",
+    );
 }
 
 main()
