@@ -31,8 +31,7 @@
         // Cria mapas para os arquivos de declaração, permitindo navegar até o código original
         "declarationMap": true,
         // Gera mapas de origem (.map), permitindo depurar o código TypeScript original no navegador ou VS Code
-        "sourceMap": true,
-        "ignoreDeprecations": "6.0"
+        "sourceMap": true
     },
     // Define quais arquivos ou pastas o TypeScript deve incluir na compilação
     "include": ["src/**/*"],

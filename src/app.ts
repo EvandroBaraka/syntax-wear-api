@@ -9,6 +9,7 @@ import swagger from "@fastify/swagger";
 import scalar from "@scalar/fastify-api-reference";
 import jwt from "@fastify/jwt";
 import authRoutes from "./routes/auth.routes";
+import orderRoutes from "./routes/orders.routes";
 import { errorHandler } from "./middlewares/error.middleware";
 
 // Define a porta do servidor, buscando das variáveis de ambiente ou usando 3000 como padrão
@@ -73,6 +74,7 @@ fastify.register(productRoutes, { prefix: "/products" });
 fastify.register(authRoutes, { prefix: "/auth" });
 
 fastify.register(categoryRoutes, { prefix: "/categories" });
+fastify.register(orderRoutes, { prefix: "/orders" });
 
 // Define a rota principal (home) que retorna informações básicas da API
 fastify.get("/", async (request, reply) => {
