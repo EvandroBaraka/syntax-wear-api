@@ -227,3 +227,20 @@ export const updateOrder = async (id: number, data: UpdateOrder) => {
 
     return updatedOrder;
 };
+
+export const deleteOrder = async (id: number) => {
+    const existingOrder = await prisma.order.findUnique({
+        where: { id },
+    });
+
+    if (!existingOrder) {
+        throw new Error("Pedido não encontrado");
+    }
+
+    await prisma.order.update({
+        where: { id },
+        data: {
+            status: "CANCELLED",
+        },
+    });
+};

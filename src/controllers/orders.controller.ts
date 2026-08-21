@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { CreateOrder, OrderFilters, UpdateOrder } from "../types";
 import {
     createOrder,
+    deleteOrder,
     getOrderById,
     getOrders,
     updateOrder,
@@ -56,5 +57,18 @@ export const updateExistingOrder = async (
     reply.status(200).send({
         message: "Pedido atualizado com sucesso",
         order,
+    });
+};
+
+export const deleteExistingOrder = async (
+    request: FastifyRequest<{ Params: { id: number } }>,
+    reply: FastifyReply,
+) => {
+    const { id } = request.params;
+
+    await deleteOrder(Number(id));
+
+    reply.status(200).send({
+        message: "Pedido cancelado com sucesso",
     });
 };
