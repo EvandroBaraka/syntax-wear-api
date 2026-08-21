@@ -3,6 +3,7 @@ import {
     createNewOrder,
     getOrder,
     listOrders,
+    updateExistingOrder,
 } from "../controllers/orders.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 
@@ -180,6 +181,110 @@ export default function orderRoutes(fastify: FastifyInstance) {
         createNewOrder,
     );
 
+    fastify.put(
+        "/:id",
+        {
+            schema: {
+                tags: ["Orders"],
+                description:
+                    "Atualiza status e/ou endereço de entrega de um pedido",
+                security: [{ bearerAuth: [] }],
+                params: {
+                    type: "object",
+                    properties: {
+                        id: { type: "number" },
+                    },
+                    required: ["id"],
+                },
+                body: {
+                    type: "object",
+                    properties: {
+                        status: {
+                            type: "string",
+                            enum: [
+                                "PENDING",
+                                "PAID",
+                                "SHIPPED",
+                                "DELIVERED",
+                                "CANCELLED",
+                            ],
+                        },
+                        shippingAddress: {
+                            type: "object",
+                            properties: {
+                                cep: { type: "string" },
+                                street: { type: "string" },
+                                number: { type: "string" },
+                                complement: { type: "string" },
+                                neighborhood: { type: "string" },
+                                city: { type: "string" },
+                                state: { type: "string" },
+                                country: { type: "string" },
+                            },
+                            required: [
+                                "cep",
+                                "street",
+                                "number",
+                                "neighborhood",
+                                "city",
+                                "state",
+                            ],
+                        },
+                    },
+                },
+                response: {
+                    200: {
+                        description: "Pedido atualizado com sucesso",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                            order: {
+                                type: "object",
+                                properties: {
+                                    id: { type: "number" },
+                                    total: { type: "number" },
+                                    status: { type: "string" },
+                                    paymentMethod: { type: "string" },
+                                    shippingAddress: { type: "object" },
+                                    createdAt: {
+                                        type: "string",
+                                        format: "date-time",
+                                    },
+                                    updatedAt: {
+                                        type: "string",
+                                        format: "date-time",
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    400: {
+                        description: "Dados inválidos",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    401: {
+                        description: "Não autorizado",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    404: {
+                        description: "Pedido não encontrado",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                },
+            },
+        },
+        updateExistingOrder,
+    );
+
     fastify.get(
         "/:id",
         {
@@ -203,7 +308,19 @@ export default function orderRoutes(fastify: FastifyInstance) {
                             total: { type: "number" },
                             status: { type: "string" },
                             paymentMethod: { type: "string" },
-                            shippingAddress: { type: "object" },
+                            shippingAddress: {
+                                type: "object",
+                                properties: {
+                                    cep: { type: "string" },
+                                    street: { type: "string" },
+                                    number: { type: "string" },
+                                    complement: { type: "string" },
+                                    neighborhood: { type: "string" },
+                                    city: { type: "string" },
+                                    state: { type: "string" },
+                                    country: { type: "string" },
+                                },
+                            },
                             createdAt: { type: "string", format: "date-time" },
                             updatedAt: { type: "string", format: "date-time" },
                         },

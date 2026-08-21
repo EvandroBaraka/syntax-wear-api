@@ -1,6 +1,6 @@
 import { Prisma } from "../generated/prisma/client";
 import { prisma } from "../utils/prisma";
-import { CreateOrder, OrderFilters } from "../types";
+import { CreateOrder, OrderFilters, UpdateOrder } from "../types";
 
 export const getOrders = async (filters: OrderFilters) => {
     const {
@@ -189,4 +189,41 @@ export const createOrder = async (data: CreateOrder) => {
 
         return createdOrder;
     });
+};
+
+export const updateOrder = async (id: number, data: UpdateOrder) => {
+    const existingOrder = await prisma.order.findUnique({
+        where: { id },
+    });
+
+    if (!existingOrder) {
+        throw new Error("Pedido não encontrado");
+    }
+
+    const updatedOrder = await prisma.order.update({
+        where: { id },
+        data: {
+            ...(data.status ? { status: data.status } : {}),
+            ...(data.shippingAddress
+                ? {
+                      shippingAddress:
+                          data.shippingAddress as unknown as Prisma.InputJsonValue,
+                  }
+                : {}),
+        },
+        include: {
+            user: true,
+            items: {
+                include: {
+                    product: {
+                        include: {
+                            category: true,
+                        },
+                    },
+                },
+            },
+        },
+    });
+
+    return updatedOrder;
 };
