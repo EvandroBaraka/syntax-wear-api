@@ -1,5 +1,6 @@
+import { Prisma } from "../generated/prisma/client";
 import { prisma } from "../utils/prisma";
-import { OrderFilters } from "../types";
+import { CreateOrder, OrderFilters } from "../types";
 
 export const getOrders = async (filters: OrderFilters) => {
     const {
@@ -87,4 +88,105 @@ export const getOrderById = async (id: number) => {
     }
 
     return order;
+};
+
+export const createOrder = async (data: CreateOrder) => {
+    const productIds = data.items.map((item) => item.productId);
+    const existingProducts = await prisma.product.findMany({
+        where: {
+            id: { in: productIds },
+        },
+    });
+
+    const productMap = new Map(
+        existingProducts.map((product) => [product.id, product]),
+    );
+
+    for (const item of data.items) {
+        const product = productMap.get(item.productId);
+
+        if (!product) {
+            throw new Error(`Produto com ID ${item.productId} não encontrado`);
+        }
+
+        if (!product.active) {
+            throw new Error(`Produto ${product.name} está inativo`);
+        }
+
+        const availableSizes = Array.isArray(product.sizes)
+            ? product.sizes.filter(
+                  (size): size is string => typeof size === "string",
+              )
+            : [];
+
+        if (availableSizes.length > 0 && !item.size) {
+            throw new Error(
+                `Produto ${product.name} requer seleção de tamanho`,
+            );
+        }
+
+        if (item.size && !availableSizes.includes(item.size)) {
+            throw new Error(
+                `Tamanho ${item.size} não disponível para ${product.name}`,
+            );
+        }
+
+        if (product.stock < item.quantity) {
+            throw new Error(
+                `Estoque insuficiente para ${product.name}. Disponível: ${product.stock}, solicitado: ${item.quantity}`,
+            );
+        }
+    }
+
+    const orderItems = data.items.map((item) => {
+        const product = productMap.get(item.productId)!;
+
+        return {
+            productId: item.productId,
+            quantity: item.quantity,
+            size: item.size ?? null,
+            price: new Prisma.Decimal(product.price.toString()),
+        };
+    });
+
+    const calculatedTotal = orderItems.reduce(
+        (sum, item) => sum.plus(item.price.mul(item.quantity)),
+        new Prisma.Decimal(0),
+    );
+
+    return prisma.$transaction(async (tx) => {
+        const createdOrder = await tx.order.create({
+            data: {
+                userId: data.userId ?? null,
+                total: calculatedTotal,
+                status: "PENDING",
+                shippingAddress:
+                    data.shippingAddress as unknown as Prisma.InputJsonValue,
+                paymentMethod: data.paymentMethod,
+            },
+        });
+
+        await Promise.all(
+            orderItems.map(async (item) => {
+                await tx.orderItem.create({
+                    data: {
+                        orderId: createdOrder.id,
+                        productId: item.productId,
+                        price: item.price,
+                        quantity: item.quantity,
+                        size: item.size,
+                    },
+                });
+
+                await tx.product.update({
+                    where: { id: item.productId },
+                    data: {
+                        stock: { decrement: item.quantity },
+                    },
+                });
+            }),
+        );
+
+        return createdOrder;
+    });
 };

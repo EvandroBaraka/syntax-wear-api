@@ -1,5 +1,9 @@
 import { FastifyInstance } from "fastify";
-import { getOrder, listOrders } from "../controllers/orders.controller";
+import {
+    createNewOrder,
+    getOrder,
+    listOrders,
+} from "../controllers/orders.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 
 export default function orderRoutes(fastify: FastifyInstance) {
@@ -45,6 +49,28 @@ export default function orderRoutes(fastify: FastifyInstance) {
                                         id: { type: "number" },
                                         total: { type: "number" },
                                         status: { type: "string" },
+                                        user: {
+                                            type: "object",
+                                            properties: {
+                                                id: { type: "number" },
+                                                name: { type: "string" },
+                                                email: { type: "string" },
+                                            },
+                                        },
+                                        items: {
+                                            type: "array",
+                                            items: {
+                                                type: "object",
+                                                properties: {
+                                                    id: { type: "number" },
+                                                    name: { type: "string" },
+                                                    price: { type: "number" },
+                                                    quantity: {
+                                                        type: "number",
+                                                    },
+                                                },
+                                            },
+                                        },
                                         paymentMethod: { type: "string" },
                                         shippingAddress: { type: "object" },
                                         createdAt: {
@@ -75,6 +101,83 @@ export default function orderRoutes(fastify: FastifyInstance) {
             },
         },
         listOrders,
+    );
+
+    fastify.post(
+        "/",
+        {
+            schema: {
+                tags: ["Orders"],
+                description: "Cria um novo pedido",
+                security: [{ bearerAuth: [] }],
+                body: {
+                    type: "object",
+                    properties: {
+                        userId: { type: "number" },
+                        paymentMethod: { type: "string" },
+                        shippingAddress: {
+                            type: "object",
+                            properties: {
+                                cep: { type: "string" },
+                                street: { type: "string" },
+                                number: { type: "string" },
+                                complement: { type: "string" },
+                                neighborhood: { type: "string" },
+                                city: { type: "string" },
+                                state: { type: "string" },
+                                country: { type: "string" },
+                            },
+                            required: [
+                                "cep",
+                                "street",
+                                "number",
+                                "neighborhood",
+                                "city",
+                                "state",
+                            ],
+                        },
+                        items: {
+                            type: "array",
+                            items: {
+                                type: "object",
+                                properties: {
+                                    productId: { type: "number" },
+                                    quantity: { type: "number" },
+                                    size: { type: "string" },
+                                },
+                                required: ["productId", "quantity"],
+                            },
+                        },
+                    },
+                    required: ["items", "shippingAddress", "paymentMethod"],
+                },
+                response: {
+                    201: {
+                        description: "Pedido criado com sucesso",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                            orderId: { type: "number" },
+                        },
+                    },
+                    400: {
+                        description: "Dados inválidos",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    401: {
+                        description: "Não autorizado",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                },
+            },
+        },
+        createNewOrder,
     );
 
     fastify.get(
