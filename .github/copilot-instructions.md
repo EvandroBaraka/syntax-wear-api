@@ -14,6 +14,7 @@
 - Preserve o fluxo de autenticação baseado em JWT e middleware. Não exponha senhas, tokens ou segredos nas respostas e nos logs.
 - Para valores monetários, respeite o tipo `Decimal` definido no Prisma e evite conversões silenciosas para ponto flutuante.
 - Prefira desativação lógica de produtos e categorias (`active: false`) quando a operação for uma exclusão de catálogo, conforme o service atual.
+- Para pedidos, siga o padrão de CRUD em `src/routes/orders.routes.ts`, `src/controllers/orders.controller.ts` e `src/services/orders.service.ts`, com criação em transação, atualização de status/endereço e cancelamento por `status: "CANCELLED"` em vez de remoção física.
 - Para categorias, siga o padrão já implementado de CRUD com listagem, criação, atualização e soft delete em `src/routes/categories.routes.ts`, `src/controllers/categories.controller.ts` e `src/services/categories.service.ts`.
 
 ## Banco de Dados
