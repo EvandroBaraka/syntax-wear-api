@@ -49,7 +49,7 @@ export const createNewProduct = async (
 
 export const updateExistingProduct = async (
     request: FastifyRequest<{
-        Params: { id: number };
+        Params: { id: string };
         Body: Partial<CreateProduct>;
     }>,
     reply: FastifyReply,
@@ -72,7 +72,7 @@ export const updateExistingProduct = async (
 };
 
 export const deleteExistingProduct = async (
-    request: FastifyRequest<{ Params: { id: number } }>,
+    request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply,
 ) => {
     const { id } = request.params;

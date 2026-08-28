@@ -6,10 +6,10 @@ import {
     listProducts,
     updateExistingProduct,
 } from "../controllers/products.controller";
-import { authenticate } from "../middlewares/auth.middleware";
+import { requireAdmin } from "../middlewares/admin.middleware";
+import { CreateProduct, UpdateProduct } from "../types";
 
-export default function productRoutes(fastify: FastifyInstance) {
-    // fastify.addHook("onRequest", authenticate);
+export default async function productRoutes(fastify: FastifyInstance) {
     fastify.get(
         "/",
         {
@@ -171,20 +171,16 @@ export default function productRoutes(fastify: FastifyInstance) {
         getProduct,
     );
 
-    fastify.post(
+    fastify.post<{ Body: CreateProduct }>(
         "/",
         {
+            onRequest: [requireAdmin], // Requer autenticação + role ADMIN
             schema: {
                 tags: ["Products"],
                 description: "Rota que cria um novo produto",
-                required: [
-                    "name",
-                    "description",
-                    "price",
-                    "categoryId",
-                ],
                 body: {
                     type: "object",
+                    required: ["name", "description", "price", "categoryId"],
                     properties: {
                         name: { type: "string" },
                         description: { type: "string" },
@@ -268,9 +264,10 @@ export default function productRoutes(fastify: FastifyInstance) {
         createNewProduct,
     );
 
-    fastify.put(
+    fastify.put<{ Body: UpdateProduct; Params: { id: string } }>(
         "/:id",
         {
+            onRequest: [requireAdmin], // Requer autenticação + role ADMIN
             schema: {
                 tags: ["Products"],
                 description: "Rota que atualiza um produto existente",
@@ -373,9 +370,10 @@ export default function productRoutes(fastify: FastifyInstance) {
         updateExistingProduct,
     );
 
-    fastify.delete(
+    fastify.delete<{ Params: { id: string } }>(
         "/:id",
         {
+            onRequest: [requireAdmin], // Requer autenticação + role ADMIN
             schema: {
                 tags: ["Products"],
                 description: "Rota que remove um produto pelo ID",

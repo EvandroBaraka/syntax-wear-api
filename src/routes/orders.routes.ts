@@ -8,8 +8,8 @@ import {
 } from "../controllers/orders.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 
-export default function orderRoutes(fastify: FastifyInstance) {
-    // fastify.addHook("onRequest", authenticate);
+export default async function orderRoutes(fastify: FastifyInstance) {
+    fastify.addHook("onRequest", authenticate);
 
     fastify.get(
         "/",
@@ -103,6 +103,66 @@ export default function orderRoutes(fastify: FastifyInstance) {
             },
         },
         listOrders,
+    );
+
+    fastify.get(
+        "/:id",
+        {
+            schema: {
+                tags: ["Orders"],
+                description: "Retorna um pedido específico pelo ID",
+                security: [{ bearerAuth: [] }],
+                params: {
+                    type: "object",
+                    properties: {
+                        id: { type: "number" },
+                    },
+                    required: ["id"],
+                },
+                response: {
+                    200: {
+                        description: "Pedido encontrado com sucesso",
+                        type: "object",
+                        properties: {
+                            id: { type: "number" },
+                            total: { type: "number" },
+                            status: { type: "string" },
+                            paymentMethod: { type: "string" },
+                            shippingAddress: {
+                                type: "object",
+                                properties: {
+                                    cep: { type: "string" },
+                                    street: { type: "string" },
+                                    number: { type: "string" },
+                                    complement: { type: "string" },
+                                    neighborhood: { type: "string" },
+                                    city: { type: "string" },
+                                    state: { type: "string" },
+                                    country: { type: "string" },
+                                },
+                            },
+                            createdAt: { type: "string", format: "date-time" },
+                            updatedAt: { type: "string", format: "date-time" },
+                        },
+                    },
+                    401: {
+                        description: "Não autorizado",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                    404: {
+                        description: "Pedido não encontrado",
+                        type: "object",
+                        properties: {
+                            message: { type: "string" },
+                        },
+                    },
+                },
+            },
+        },
+        getOrder,
     );
 
     fastify.post(
@@ -326,65 +386,5 @@ export default function orderRoutes(fastify: FastifyInstance) {
             },
         },
         deleteExistingOrder,
-    );
-
-    fastify.get(
-        "/:id",
-        {
-            schema: {
-                tags: ["Orders"],
-                description: "Retorna um pedido pelo ID",
-                security: [{ bearerAuth: [] }],
-                params: {
-                    type: "object",
-                    properties: {
-                        id: { type: "number" },
-                    },
-                    required: ["id"],
-                },
-                response: {
-                    200: {
-                        description: "Pedido encontrado com sucesso",
-                        type: "object",
-                        properties: {
-                            id: { type: "number" },
-                            total: { type: "number" },
-                            status: { type: "string" },
-                            paymentMethod: { type: "string" },
-                            shippingAddress: {
-                                type: "object",
-                                properties: {
-                                    cep: { type: "string" },
-                                    street: { type: "string" },
-                                    number: { type: "string" },
-                                    complement: { type: "string" },
-                                    neighborhood: { type: "string" },
-                                    city: { type: "string" },
-                                    state: { type: "string" },
-                                    country: { type: "string" },
-                                },
-                            },
-                            createdAt: { type: "string", format: "date-time" },
-                            updatedAt: { type: "string", format: "date-time" },
-                        },
-                    },
-                    401: {
-                        description: "Não autorizado",
-                        type: "object",
-                        properties: {
-                            message: { type: "string" },
-                        },
-                    },
-                    404: {
-                        description: "Pedido não encontrado",
-                        type: "object",
-                        properties: {
-                            message: { type: "string" },
-                        },
-                    },
-                },
-            },
-        },
-        getOrder,
     );
 }

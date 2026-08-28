@@ -24,14 +24,14 @@ export const listCategories = async (
 };
 
 export const getCategory = async (
-    request: FastifyRequest<{ Params: { id: number } }>,
+    request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply,
 ) => {
-    const category = await getCategoryById(request.params.id);
+    const category = await getCategoryById(Number(request.params.id));
     reply.status(200).send(category);
 };
 
-export const createCategory = async (
+export const createNewCategory = async (
     request: FastifyRequest<{ Body: CreateCategory }>,
     reply: FastifyReply,
 ) => {
@@ -48,8 +48,8 @@ export const createCategory = async (
     });
 };
 
-export const updateCategory = async (
-    request: FastifyRequest<{ Params: { id: number }; Body: UpdateCategory }>,
+export const updateExistingCategory = async (
+    request: FastifyRequest<{ Params: { id: string }; Body: UpdateCategory }>,
     reply: FastifyReply,
 ) => {
     const validate = updateCategorySchema.parse(request.body);
@@ -62,7 +62,7 @@ export const updateCategory = async (
         });
     }
 
-    const category = await updateCategoryService(request.params.id, validate);
+    const category = await updateCategoryService(Number(request.params.id), validate);
 
     reply.status(200).send({
         message: "Categoria atualizada com sucesso",
@@ -70,11 +70,11 @@ export const updateCategory = async (
     });
 };
 
-export const deleteCategory = async (
-    request: FastifyRequest<{ Params: { id: number } }>,
+export const deleteExistingCategory = async (
+    request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply,
 ) => {
-    await deleteCategoryService(request.params.id);
+    await deleteCategoryService(Number(request.params.id));
 
     reply.status(200).send({
         message: "Categoria removida com sucesso (soft delete)",

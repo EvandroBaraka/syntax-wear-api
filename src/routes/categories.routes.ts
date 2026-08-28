@@ -1,17 +1,17 @@
 import { FastifyInstance } from "fastify";
 import {
-    createCategory,
-    deleteCategory,
+    createNewCategory,
+    deleteExistingCategory,
     getCategory,
     listCategories,
-    updateCategory,
+    updateExistingCategory,
 } from "../controllers/categories.controller";
-import { authenticate } from "../middlewares/auth.middleware";
+import { requireAdmin } from "../middlewares/admin.middleware";
+import { CategoryFilters, CreateCategory, UpdateCategory } from "../types";
 
-export default function categoryRoutes(fastify: FastifyInstance) {
-    // fastify.addHook("onRequest", authenticate);
+export default async function categoryRoutes(fastify: FastifyInstance) {
 
-    fastify.get(
+    fastify.get<{ Querystring: CategoryFilters }>(
         "/",
         {
             schema: {
@@ -75,7 +75,7 @@ export default function categoryRoutes(fastify: FastifyInstance) {
         listCategories,
     );
 
-    fastify.get(
+    fastify.get<{ Params: { id: string } }>(
         "/:id",
         {
             schema: {
@@ -120,9 +120,10 @@ export default function categoryRoutes(fastify: FastifyInstance) {
         getCategory,
     );
 
-    fastify.post(
+    fastify.post<{ Body: CreateCategory }>(
         "/",
         {
+            onRequest: [requireAdmin], // Adiciona o middleware requireAdmin para verificar se o usuário é admin
             schema: {
                 tags: ["Categories"],
                 description: "Rota que cria uma nova categoria",
@@ -178,10 +179,10 @@ export default function categoryRoutes(fastify: FastifyInstance) {
                 },
             },
         },
-        createCategory,
+        createNewCategory,
     );
 
-    fastify.put(
+    fastify.put<{ Params: { id: string }, Body: UpdateCategory }>(
         "/:id",
         {
             schema: {
@@ -252,10 +253,10 @@ export default function categoryRoutes(fastify: FastifyInstance) {
                 },
             },
         },
-        updateCategory,
+        updateExistingCategory,
     );
 
-    fastify.delete(
+    fastify.delete<{ Params: { id: string } }>(
         "/:id",
         {
             schema: {
@@ -301,6 +302,6 @@ export default function categoryRoutes(fastify: FastifyInstance) {
                 },
             },
         },
-        deleteCategory,
+        deleteExistingCategory,
     );
 }

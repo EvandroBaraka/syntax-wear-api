@@ -1,7 +1,7 @@
 import { FastifyInstance } from "fastify";
 import { login, register } from "../controllers/auth.controller";
 
-export default function authRoutes(fastify: FastifyInstance) {
+export default async function authRoutes(fastify: FastifyInstance) {
     fastify.post(
         "/register",
         {
