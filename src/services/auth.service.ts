@@ -36,6 +36,17 @@ export const registerUser = async (payload: RegisterRequest) => {
             phone: payload.phone,
             role: "USER", // Define o papel do usuário como "USER" por padrão
         },
+        select: {
+			id: true,
+			firstName: true,
+			lastName: true,
+			email: true,
+			cpf: true,
+			birthDate: true,
+			phone: true,
+			role: true,
+			createdAt: true,
+		},
     });
 
     return newUser;
