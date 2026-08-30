@@ -18,15 +18,32 @@ export const listOrders = async (
     reply: FastifyReply,
 ) => {
     const filters = orderFiltersSchema.parse(request.query);
-    const result = await getOrders(filters as OrderFilters);
+
+    // Extrair userId e role do token JWT
+    const user = request.user as any;
+    const requestingUserId = user.userId;
+    const isAdmin = user.role === "ADMIN";
+
+    const result = await getOrders(
+        filters as OrderFilters,
+        requestingUserId,
+        isAdmin,
+    );
     reply.status(200).send(result);
 };
 
 export const getOrder = async (
-    request: FastifyRequest<{ Params: { id: number } }>,
+    request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply,
 ) => {
-    const order = await getOrderById(request.params.id);
+    const id = parseInt(request.params.id, 10);
+
+    // Extrair userId e role do token JWT
+    const user = request.user as any;
+    const requestingUserId = user.userId;
+    const isAdmin = user.role === "ADMIN";
+
+    const order = await getOrderById(id, requestingUserId, isAdmin);
     reply.status(200).send(order);
 };
 
@@ -45,14 +62,20 @@ export const createNewOrder = async (
 
 export const updateExistingOrder = async (
     request: FastifyRequest<{
-        Params: { id: number };
+        Params: { id: string };
         Body: UpdateOrder;
     }>,
     reply: FastifyReply,
 ) => {
-    const { id } = request.params;
+    const id = parseInt(request.params.id, 10);
     const body = updateOrderSchema.parse(request.body);
-    const order = await updateOrder(Number(id), body);
+
+    // Extrair userId e role do token JWT
+    const user = request.user as any;
+    const requestingUserId = user.userId;
+    const isAdmin = user.role === "ADMIN";
+
+    const order = await updateOrder(id, body, requestingUserId, isAdmin);
 
     reply.status(200).send({
         message: "Pedido atualizado com sucesso",
@@ -61,12 +84,17 @@ export const updateExistingOrder = async (
 };
 
 export const deleteExistingOrder = async (
-    request: FastifyRequest<{ Params: { id: number } }>,
+    request: FastifyRequest<{ Params: { id: string } }>,
     reply: FastifyReply,
 ) => {
-    const { id } = request.params;
+    const id = parseInt(request.params.id, 10);
 
-    await deleteOrder(Number(id));
+    // Extrair userId e role do token JWT
+    const user = request.user as any;
+    const requestingUserId = user.userId;
+    const isAdmin = user.role === "ADMIN";
+
+    await deleteOrder(id, requestingUserId, isAdmin);
 
     reply.status(200).send({
         message: "Pedido cancelado com sucesso",

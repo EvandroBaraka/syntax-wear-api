@@ -3,6 +3,7 @@ import "dotenv/config";
 import cors from "@fastify/cors";
 // Plugin Helmet para aumentar a segurança da API através de headers HTTP
 import helmet from "@fastify/helmet";
+import csrf from "@fastify/csrf-protection";
 import productRoutes from "./routes/products.routes";
 import categoryRoutes from "./routes/categories.routes";
 import swagger from "@fastify/swagger";
@@ -17,7 +18,23 @@ const PORT = parseInt(process.env.PORT ?? "3000");
 
 // Instancia o Fastify e habilita o log para monitoramento de requisições
 const fastify = Fastify({
-    logger: true,
+    logger: {
+    level: process.env.LOG_LEVEL || 'info',
+    serializers: {
+      req(request) {
+        return {
+          method: request.method,
+          url: request.url,
+          // ❌ NÃO logar body, headers com Authorization
+        };
+      },
+      res(reply) {
+        return {
+          statusCode: reply.statusCode,
+        };
+      }
+    }
+  }
 });
 
 fastify.register(jwt, {
@@ -33,6 +50,10 @@ fastify.register(cors, {
 // Registra o plugin Helmet para segurança, desabilitando o CSP para simplificar o desenvolvimento inicial
 fastify.register(helmet, {
     contentSecurityPolicy: false,
+});
+
+fastify.register(csrf, {
+    cookieOpts: { signed: true }
 });
 
 // Registra o plugin Swagger para documentação automática da API, configurando título, descrição e versão
