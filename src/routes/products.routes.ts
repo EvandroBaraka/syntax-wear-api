@@ -316,6 +316,7 @@ export default async function productRoutes(fastify: FastifyInstance) {
                                 properties: {
                                     id: { type: "number" },
                                     name: { type: "string" },
+                                    slug: { type: "string" },
                                     price: { type: "number" },
                                     categoryId: { type: "number" },
                                     colors: {

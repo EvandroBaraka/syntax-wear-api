@@ -67,5 +67,8 @@ export const loginUser = async (data: AuthRequest) => {
         throw new Error("Senha inválida.");
     }
 
-    return user;
+    // Remover password antes de retornar
+    const { password, ...userWithoutPassword } = user;
+
+    return userWithoutPassword;
 };

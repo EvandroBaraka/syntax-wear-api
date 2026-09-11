@@ -1,6 +1,5 @@
 import { prisma } from "../utils/prisma";
 import { CategoryFilters, CreateCategory, UpdateCategory } from "../types";
-import slugify from "slugify";
 
 export const getCategories = async (filters: CategoryFilters) => {
     const { search, page = 1, limit = 10 } = filters;
@@ -51,17 +50,8 @@ export const getCategoryById = async (id: number) => {
 };
 
 export const createCategory = async (data: CreateCategory) => {
-    const slug =
-        data.slug ??
-        slugify(data.name, { lower: true, strict: true, locale: "pt" });
-
-    const existingCategory = await prisma.category.findFirst({
-        where: {
-            OR: [
-                { slug },
-                { name: { equals: data.name, mode: "insensitive" } },
-            ],
-        },
+    const existingCategory = await prisma.category.findUnique({
+        where: { slug: data.slug },
     });
 
     if (existingCategory) {
@@ -70,14 +60,7 @@ export const createCategory = async (data: CreateCategory) => {
         );
     }
 
-    return prisma.category.create({
-        data: {
-            name: data.name,
-            slug,
-            description: data.description,
-            active: data.active ?? true,
-        },
-    });
+    return prisma.category.create({ data });
 };
 
 export const updateCategory = async (id: number, data: UpdateCategory) => {
@@ -120,6 +103,11 @@ export const deleteCategory = async (id: number) => {
 
     await prisma.category.update({
         where: { id },
+        data: { active: false },
+    });
+
+    await prisma.product.updateMany({
+        where: { categoryId: id },
         data: { active: false },
     });
 };

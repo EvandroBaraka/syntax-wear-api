@@ -72,7 +72,5 @@ export const deleteExistingCategory = async (
 ) => {
     await deleteCategoryService(Number(request.params.id));
 
-    reply.status(200).send({
-        message: "Categoria removida com sucesso (soft delete)",
-    });
+    reply.status(204).send();
 };

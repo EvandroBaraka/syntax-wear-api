@@ -17,7 +17,7 @@ export interface CategoryFilters {
 
 export interface CreateCategory {
     name: string;
-    slug?: string;
+    slug: string;
     description?: string;
     active?: boolean;
 }

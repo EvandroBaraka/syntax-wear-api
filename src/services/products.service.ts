@@ -107,6 +107,16 @@ export const createProduct = async (data: CreateProduct) => {
         );
     }
 
+    if (data.categoryId) {
+        const category = await prisma.category.findUnique({
+            where: { id: data.categoryId },
+        });
+
+        if (!category) {
+            throw new Error("Categoria não encontrada");
+        }
+    }
+
     const newProduct = await prisma.product.create({
         data,
     });
