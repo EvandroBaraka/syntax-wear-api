@@ -1,5 +1,5 @@
-import { prisma } from "../utils/prisma.js";
-import { CategoryFilters, CreateCategory, UpdateCategory } from "../types/index.js";
+import { prisma } from "../utils/prisma";
+import { CategoryFilters, CreateCategory, UpdateCategory } from "../types";
 
 export const getCategories = async (filters: CategoryFilters) => {
     const { search, page = 1, limit = 10 } = filters;

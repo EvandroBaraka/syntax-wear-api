@@ -1,17 +1,17 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { CreateOrder, OrderFilters, UpdateOrder } from "../types/index.js";
+import { CreateOrder, OrderFilters, UpdateOrder } from "../types";
 import {
     createOrder,
     deleteOrder,
     getOrderById,
     getOrders,
     updateOrder,
-} from "../services/orders.service.js";
+} from "../services/orders.service";
 import {
     createOrderSchema,
     orderFiltersSchema,
     updateOrderSchema,
-} from "../utils/validators.js";
+} from "../utils/validators";
 
 export const listOrders = async (
     request: FastifyRequest<{ Querystring: OrderFilters }>,

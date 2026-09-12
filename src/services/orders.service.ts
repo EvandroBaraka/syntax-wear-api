@@ -1,6 +1,6 @@
-import { Prisma } from "../generated/prisma/client.js";
-import { prisma } from "../utils/prisma.js";
-import { CreateOrder, OrderFilters, UpdateOrder } from "../types/index.js";
+import { Prisma } from "../generated/prisma/client";
+import { prisma } from "../utils/prisma";
+import { CreateOrder, OrderFilters, UpdateOrder } from "../types";
 
 export const getOrders = async (
     filters: OrderFilters = {},
