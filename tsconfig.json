@@ -10,6 +10,8 @@
         "module": "esnext",
         // Inclui as bibliotecas de tipos padrão do ES2022
         "lib": ["ES2022"],
+        // Garante a inclusão dos tipos do Node.js
+        "types": ["node"],
         // Diretório onde os arquivos JavaScript compilados serão salvos
         "outDir": "./dist",
         // Diretório raiz onde os arquivos TypeScript de origem estão localizados
