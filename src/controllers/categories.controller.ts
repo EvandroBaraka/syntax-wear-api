@@ -5,14 +5,14 @@ import {
     getCategories,
     getCategoryById,
     updateCategory as updateCategoryService,
-} from "../services/categories.service";
-import { CategoryFilters, CreateCategory, UpdateCategory } from "../types";
+} from "../services/categories.service.js";
+import { CategoryFilters, CreateCategory, UpdateCategory } from "../types/index.js";
 import {
     categoryFilterSchema,
     createCategorySchema,
     updateCategorySchema,
-} from "../utils/validators";
-import { generateSlug } from "../utils/slug";
+} from "../utils/validators.js";
+import { generateSlug } from "../utils/slug.js";
 
 export const listCategories = async (
     request: FastifyRequest<{ Querystring: CategoryFilters }>,

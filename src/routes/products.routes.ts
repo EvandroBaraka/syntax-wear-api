@@ -5,9 +5,9 @@ import {
     getProduct,
     listProducts,
     updateExistingProduct,
-} from "../controllers/products.controller";
-import { requireAdmin } from "../middlewares/admin.middleware";
-import { CreateProduct, UpdateProduct } from "../types";
+} from "../controllers/products.controller.js";
+import { requireAdmin } from "../middlewares/admin.middleware.js";
+import { CreateProduct, UpdateProduct } from "../types/index.js";
 
 export default async function productRoutes(fastify: FastifyInstance) {
     fastify.get(

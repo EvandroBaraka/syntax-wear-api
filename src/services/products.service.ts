@@ -1,5 +1,5 @@
-import { prisma } from "../utils/prisma";
-import { CreateProduct, ProductFilters, UpdateProduct } from "../types";
+import { prisma } from "../utils/prisma.js";
+import { CreateProduct, ProductFilters, UpdateProduct } from "../types/index.js";
 
 export const getProducts = async (filters: ProductFilters) => {
     // Desestrutura os filtros recebidos, definindo valores padrão para página (1) e limite (10)

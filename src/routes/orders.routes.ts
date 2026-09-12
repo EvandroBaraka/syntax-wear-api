@@ -5,8 +5,8 @@ import {
     getOrder,
     listOrders,
     updateExistingOrder,
-} from "../controllers/orders.controller";
-import { authenticate } from "../middlewares/auth.middleware";
+} from "../controllers/orders.controller.js";
+import { authenticate } from "../middlewares/auth.middleware.js";
 
 export default async function orderRoutes(fastify: FastifyInstance) {
     fastify.addHook("onRequest", authenticate);

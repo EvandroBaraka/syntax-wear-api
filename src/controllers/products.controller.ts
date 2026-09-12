@@ -1,19 +1,19 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import { CreateProduct, ProductFilters } from "../types";
+import { CreateProduct, ProductFilters } from "../types/index.js";
 import {
     getProducts,
     getProductById,
     createProduct,
     updateProduct,
     deleteProduct,
-} from "../services/products.service";
+} from "../services/products.service.js";
 import {
     createProductSchema,
     deleteProductSchema,
     productFilterSchema,
     updateProductSchema,
-} from "../utils/validators";
-import { generateSlug } from "../utils/slug";
+} from "../utils/validators.js";
+import { generateSlug } from "../utils/slug.js";
 
 export const listProducts = async (
     request: FastifyRequest<{ Querystring: ProductFilters }>,

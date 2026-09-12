@@ -5,9 +5,9 @@ import {
     getCategory,
     listCategories,
     updateExistingCategory,
-} from "../controllers/categories.controller";
-import { requireAdmin } from "../middlewares/admin.middleware";
-import { CategoryFilters, CreateCategory, UpdateCategory } from "../types";
+} from "../controllers/categories.controller.js";
+import { requireAdmin } from "../middlewares/admin.middleware.js";
+import { CategoryFilters, CreateCategory, UpdateCategory } from "../types/index.js";
 
 export default async function categoryRoutes(fastify: FastifyInstance) {
 
