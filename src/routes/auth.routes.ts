@@ -1,5 +1,6 @@
 import { FastifyInstance } from "fastify";
-import { login, register } from "../controllers/auth.controller";
+import { login, profile, register } from "../controllers/auth.controller";
+import { authenticate } from "../middlewares/auth.middleware";
 
 export default async function authRoutes(fastify: FastifyInstance) {
     fastify.post(
@@ -76,5 +77,18 @@ export default async function authRoutes(fastify: FastifyInstance) {
             },
         },
         login,
+    );
+
+    fastify.get(
+        "/profile",
+        {
+            preHandler: [authenticate],
+            schema: {
+                tags: ["Auth"],
+                description: "Retorna o perfil do usuário autenticado",
+                security: [{ bearerAuth: [] }], //Indica que essa rota requer autenticação com token JWT
+            },
+        },
+        profile,
     );
 }
