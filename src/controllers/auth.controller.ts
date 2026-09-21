@@ -20,14 +20,24 @@ export const login = async ( request: FastifyRequest<{Body: AuthRequest}>, reply
 
     const validation = loginSchema.parse(request.body as AuthRequest);
 
-    const user = await loginUser(validation);
+    const user = await loginUser(validation, reply);
     
+    if (!user) return;
+
     const token = request.server.jwt.sign({
         userId: user.id,
         role: user.role,
     });
     
-    reply.status(200).send({ user, token });
+    reply.setCookie("syntaxwear.token", token, {
+        httpOnly: true, // Impede que o cookie seja acessado via JavaScript no lado do cliente
+        secure: process.env.NODE_ENV === "production", // Garante que o cookie seja enviado apenas em conexões HTTPS em produção
+        sameSite: "lax", // Protege contra ataques CSRF, permitindo apenas requisições do mesmo site
+        path: "/", // Define o caminho para o qual o cookie é válido, neste caso, para toda a aplicação
+        maxAge: 60 * 60 * 24 * 7, // 7 dias
+    });
+
+    reply.status(200).send({ user });
 }
 
 export const profile = async ( request: FastifyRequest, reply: FastifyReply ) => reply.status(200).send({ user: request.user });

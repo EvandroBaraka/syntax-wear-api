@@ -8,6 +8,7 @@ import productRoutes from "./routes/products.routes";
 import categoryRoutes from "./routes/categories.routes";
 import swagger from "@fastify/swagger";
 import scalar from "@scalar/fastify-api-reference";
+import fastifyCookie from "@fastify/cookie";
 import jwt from "@fastify/jwt";
 import authRoutes from "./routes/auth.routes";
 import orderRoutes from "./routes/orders.routes";
@@ -37,8 +38,15 @@ export async function buildApp(): Promise<FastifyInstance> {
         },
     });
 
+    // Registra o plugin de cookies para permitir o uso de cookies na API
+    fastify.register(fastifyCookie);
+
     fastify.register(jwt, {
         secret: process.env.JWT_SECRET!,
+        cookie: {
+            cookieName: "syntaxwear.token",
+            signed: false,
+        },
     });
 
     // Registra o plugin de CORS permitindo qualquer origem e envio de credenciais
