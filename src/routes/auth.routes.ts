@@ -1,5 +1,5 @@
 import { FastifyInstance } from "fastify";
-import { login, profile, register } from "../controllers/auth.controller";
+import { googleLogin, login, logout, profile, register } from "../controllers/auth.controller";
 import { authenticate } from "../middlewares/auth.middleware";
 
 export default async function authRoutes(fastify: FastifyInstance) {
@@ -90,5 +90,39 @@ export default async function authRoutes(fastify: FastifyInstance) {
             },
         },
         profile,
+    );
+
+    fastify.post(
+        "/google",
+        {
+            schema: {
+                tags: ["Auth"],
+                description: "Rota que autentica um usuário via Google e retorna um token JWT",
+                body: {
+                    type: "object",
+                    required: ["credentials"],
+                    properties: {
+                        credentials: {
+                            type: "string",
+                            description: "Credenciais do Google",
+                        },
+                    },
+                },
+            },
+        },
+        googleLogin,
+    );
+
+    fastify.post(
+        "/logout",
+        {
+            preHandler: [authenticate],
+            schema: {
+                tags: ["Auth"],
+                description: "Realiza o logout do usuário autenticado, removendo o token JWT do cookie",
+                security: [{ bearerAuth: [] }], //Indica que essa rota requer autenticação com token JWT
+            },
+        },
+        logout,
     );
 }

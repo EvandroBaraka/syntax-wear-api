@@ -2,6 +2,9 @@ import { FastifyReply } from "fastify";
 import { AuthRequest, RegisterRequest } from "../types";
 import { prisma } from "../utils/prisma";
 import bcrypt from "bcrypt";
+import { OAuth2Client } from "google-auth-library";
+
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const registerUser = async (payload: RegisterRequest) => {
     const existingUser = await prisma.user.findUnique({
@@ -38,16 +41,16 @@ export const registerUser = async (payload: RegisterRequest) => {
             role: "USER", // Define o papel do usuário como "USER" por padrão
         },
         select: {
-			id: true,
-			firstName: true,
-			lastName: true,
-			email: true,
-			cpf: true,
-			birthDate: true,
-			phone: true,
-			role: true,
-			createdAt: true,
-		},
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            cpf: true,
+            birthDate: true,
+            phone: true,
+            role: true,
+            createdAt: true,
+        },
     });
 
     return newUser;
@@ -71,6 +74,46 @@ export const loginUser = async (data: AuthRequest, reply: FastifyReply) => {
     }
 
     // Remover password antes de retornar
+    const { password, ...userWithoutPassword } = user;
+
+    return userWithoutPassword;
+};
+
+export const loginWithGoogle = async (
+    credentials: string,
+    reply: FastifyReply,
+) => {
+    const ticket = await googleClient.verifyIdToken({
+        idToken: credentials,
+        audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload || !payload.email) {
+        reply.status(401).send({ message: "Token do Google inválido." });
+        return;
+    }
+
+    const { email, given_name, family_name } = payload;
+
+    let user = await prisma.user.findUnique({
+        where: { email },
+    });
+
+    if (!user) {
+        // Se o usuário não existir, crie um novo
+        user = await prisma.user.create({
+            data: {
+                firstName: given_name || "",
+                lastName: family_name || "",
+                email,
+                password: "", // Nenhuma senha é necessária para login via Google
+                role: "USER",
+            },
+        });
+    }
+
     const { password, ...userWithoutPassword } = user;
 
     return userWithoutPassword;
