@@ -6,21 +6,32 @@ import { OAuth2Client } from "google-auth-library";
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-export const registerUser = async (payload: RegisterRequest) => {
-    const existingUser = await prisma.user.findUnique({
-        where: { email: payload.email },
+export const registerUser = async (payload: RegisterRequest, reply: FastifyReply) => {
+    const existingUser = await prisma.user.findFirst({
+        where: { 
+            OR: [
+                { email: payload.email },
+                { cpf: payload.cpf }, 
+            ],
+        },
     });
 
     if (existingUser) {
-        throw new Error("Email já cadastrado");
+       if (existingUser.email === payload.email) {
+        return reply.status(409).send({ message: "E-mail já cadastrado" });
+       }
+
+       if (existingUser.cpf === payload.cpf) {
+        return reply.status(409).send({ message: "CPF já cadastrado" });
+       }
     }
 
-    const birthDate = payload.dateOfBirth
-        ? new Date(payload.dateOfBirth)
+    const birthDate = payload.birthDate
+        ? new Date(payload.birthDate)
         : undefined;
 
     if (birthDate) {
-        if (payload.dateOfBirth && Number.isNaN(birthDate.getTime())) {
+        if (payload.birthDate && Number.isNaN(birthDate.getTime())) {
             throw new Error(
                 "Data de nascimento inválida. Use formato YYYY-MM-DD ou ISO-8601.",
             );
