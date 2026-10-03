@@ -1,4 +1,5 @@
-import { Prisma } from "../generated/prisma/client";
+import Decimal from "decimal.js";
+import { OrderStatus, Prisma } from "../generated/prisma/client";
 import { prisma } from "../utils/prisma";
 import { CreateOrder, OrderFilters, UpdateOrder } from "../types";
 
@@ -129,105 +130,81 @@ export const createOrder = async (data: CreateOrder) => {
         );
     }
 
-    // 3) Cria um mapa para acessar rapidamente cada produto pelo ID durante as validações e cálculos finais.
-    const productMap = new Map(
-        existingProducts.map((product) => [product.id, product]),
-    );
+    // 3) Calcula o total do pedido.
+    let total = new Decimal(0);
+    const orderItemsData = data.items.map((item) => {
+        const product = existingProducts.find((p) => p.id === item.productId)!;
 
-    // 4) Verifica cada item do pedido: produto ativo, tamanho válido, quantidade disponível e estoque suficiente.
-    for (const item of data.items) {
-        const product = productMap.get(item.productId);
-
-        if (!product) {
-            throw new Error(`Produto com ID ${item.productId} não encontrado`);
-        }
-
-        if (!product.active) {
-            throw new Error(`Produto ${product.name} está inativo`);
-        }
-
-        const availableSizes = Array.isArray(product.sizes)
-            ? product.sizes.filter(
-                  (size): size is string => typeof size === "string",
-              )
-            : [];
-
-        if (availableSizes.length > 0 && !item.size) {
+        if (product?.stock < item.quantity) {
             throw new Error(
-                `Produto ${product.name} requer seleção de tamanho`,
+                `Estoque insuficiente para o produto ${product.name}. Estoque disponível: ${product.stock}, quantidade solicitada: ${item.quantity}`,
             );
         }
 
-        if (item.size && !availableSizes.includes(item.size)) {
-            throw new Error(
-                `Tamanho ${item.size} não disponível para ${product.name}`,
-            );
-        }
-
-        if (product.stock < item.quantity) {
-            throw new Error(
-                `Estoque insuficiente para ${product.name}. Disponível: ${product.stock}, solicitado: ${item.quantity}`,
-            );
-        }
-    }
-
-    // 5) Normaliza os itens do pedido para persistir o preço do produto em Decimal e preservar o valor exato do pedido.
-    const orderItems = data.items.map((item) => {
-        const product = productMap.get(item.productId)!;
+        const itemTotal = new Decimal(product.price).mul(item.quantity);
+        total = total.add(itemTotal);
 
         return {
-            productId: item.productId,
+            productId: product.id,
             quantity: item.quantity,
-            size: item.size ?? null,
-            price: new Prisma.Decimal(product.price.toString()),
+            price: product.price,
+            size: item.size,
         };
     });
 
-    // 6) Calcula o total do pedido somando o preço unitário multiplicado pela quantidade de cada item.
-    const calculatedTotal = orderItems.reduce(
-        (sum, item) => sum.plus(item.price.mul(item.quantity)),
-        new Prisma.Decimal(0),
-    );
+    // Adiciona o custo de envio ao total do pedido
+    const shippingCost = new Decimal(data.shippingCost || 0);
+    total = total.add(shippingCost);
 
-    // 7) Cria o pedido e os itens em uma transação para garantir consistência e rollback em caso de falha.
-    return prisma.$transaction(async (tx) => {
-        // 7.1) Registra o pedido principal com status inicial pendente e endereço de entrega informado.
-        const createdOrder = await tx.order.create({
+    // 4) Cria o pedido no banco de dados. (transação atômica para garantir que todos os itens sejam criados junto com o pedido)
+    const order = await prisma.$transaction(async (tx) => {
+        const newOrder = await tx.order.create({
             data: {
                 userId: data.userId,
-                total: calculatedTotal,
-                status: "PENDING",
-                shippingAddress:
-                    data.shippingAddress as unknown as Prisma.InputJsonValue,
+                total,
+                status: OrderStatus.PENDING,
+                shippingAddress: JSON.stringify(data.shippingAddress),
+                shippingCost,
                 paymentMethod: data.paymentMethod,
+                items: {
+                    create: orderItemsData.map((item) => ({
+                        productId: item.productId,
+                        quantity: item.quantity,
+                        price: item.price,
+                        size: item.size,
+                    })),
+                },
+            },
+            include: {
+                items: {
+                    include: {
+                        product: {
+                            select: {
+                                id: true,
+                                name: true,
+                                images: true,
+                            },
+                        },
+                    },
+                },
             },
         });
 
-        // 7.2) Cria cada item do pedido e decrementa o estoque do produto correspondente em paralelo.
-        await Promise.all(
-            orderItems.map(async (item) => {
-                await tx.orderItem.create({
-                    data: {
-                        orderId: createdOrder.id,
-                        productId: item.productId,
-                        price: item.price,
-                        quantity: item.quantity,
-                        size: item.size,
+        for (const item of orderItemsData) {
+            await tx.product.update({
+                where: { id: item.productId },
+                data: {
+                    stock: {
+                        decrement: item.quantity,
                     },
-                });
+                },
+            });
+        }
 
-                await tx.product.update({
-                    where: { id: item.productId },
-                    data: {
-                        stock: { decrement: item.quantity },
-                    },
-                });
-            }),
-        );
-
-        // 7.3) Retorna o pedido criado para o controller responder ao cliente.
-        return createdOrder;
+        return newOrder;
     });
+
+    return order;
 };
 
 export const updateOrder = async (
@@ -337,6 +314,6 @@ export const deleteOrder = async (
             },
         },
     });
-    
+
     return deletedOrder;
 };

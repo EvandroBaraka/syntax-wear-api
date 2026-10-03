@@ -13,6 +13,7 @@ import jwt from "@fastify/jwt";
 import authRoutes from "./routes/auth.routes";
 import orderRoutes from "./routes/orders.routes";
 import { errorHandler } from "./middlewares/error.middleware";
+import stripeRoutes from "./routes/stripe.route";
 
 const PORT = parseInt(process.env.PORT ?? "3000");
 
@@ -98,6 +99,7 @@ export async function buildApp(): Promise<FastifyInstance> {
     fastify.register(authRoutes, { prefix: "/auth" });
     fastify.register(categoryRoutes, { prefix: "/categories" });
     fastify.register(orderRoutes, { prefix: "/orders" });
+    fastify.register(stripeRoutes, { prefix: "/stripe" });
 
     // Define a rota principal (home) que retorna informações básicas da API
     fastify.get("/", async (request, reply) => {

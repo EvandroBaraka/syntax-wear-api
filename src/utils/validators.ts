@@ -146,6 +146,7 @@ export const createOrderSchema = z.object({
         country: z.string().default("BR"),
     }),
     paymentMethod: z.string().min(1, "Método de pagamento é obrigatório"),
+    shippingCost: z.number().nonnegative("Custo de envio deve ser no mínimo 0"),
 });
 
 export const updateOrderSchema = z.object({

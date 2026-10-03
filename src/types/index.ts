@@ -96,6 +96,7 @@ export interface CreateOrder {
     items: CreateOrderItem[];
     shippingAddress: ShippingAddress;
     paymentMethod: string;
+    shippingCost: number;
 }
 
 export interface UpdateOrder {
