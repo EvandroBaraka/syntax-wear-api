@@ -163,7 +163,7 @@ export const createOrder = async (data: CreateOrder) => {
                 userId: data.userId,
                 total,
                 status: OrderStatus.PENDING,
-                shippingAddress: JSON.stringify(data.shippingAddress),
+                shippingAddress: JSON.parse(JSON.stringify(data.shippingAddress)),
                 shippingCost,
                 paymentMethod: data.paymentMethod,
                 items: {

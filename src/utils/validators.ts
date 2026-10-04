@@ -138,12 +138,11 @@ export const createOrderSchema = z.object({
     shippingAddress: z.object({
         cep: z.string().regex(/^\d{8}$/, "CEP deve ter 8 dígitos"),
         street: z.string().min(1, "Rua é obrigatória"),
-        number: z.string().min(1, "Número é obrigatório"),
+        number: z.coerce.number().min(1, "Número é obrigatório"),
         complement: z.string().optional(),
         neighborhood: z.string().min(1, "Bairro é obrigatório"),
         city: z.string().min(1, "Cidade é obrigatória"),
         state: z.string().length(2, "Estado deve ter 2 caracteres"),
-        country: z.string().default("BR"),
     }),
     paymentMethod: z.string().min(1, "Método de pagamento é obrigatório"),
     shippingCost: z.number().nonnegative("Custo de envio deve ser no mínimo 0"),

@@ -36,6 +36,8 @@ export const createStripeCheckoutService = async ({
             },
             quantity: product.quantity,
         })),
+        success_url: `http://localhost:5173/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `http://localhost:5173/checkout/cancel`,
     });
 
     return {
