@@ -49,14 +49,21 @@ export default async function orderRoutes(fastify: FastifyInstance) {
                                     type: "object",
                                     properties: {
                                         id: { type: "number" },
+                                        userId: { type: "number" },
                                         total: { type: "number" },
                                         status: { type: "string" },
-                                        user: {
+                                        shippingAddress: {
                                             type: "object",
                                             properties: {
-                                                id: { type: "number" },
-                                                name: { type: "string" },
-                                                email: { type: "string" },
+                                                cep: { type: "string" },
+                                                street: { type: "string" },
+                                                number: { type: "string" },
+                                                complement: { type: "string" },
+                                                neighborhood: {
+                                                    type: "string",
+                                                },
+                                                city: { type: "string" },
+                                                state: { type: "string" },
                                             },
                                         },
                                         items: {
@@ -65,16 +72,32 @@ export default async function orderRoutes(fastify: FastifyInstance) {
                                                 type: "object",
                                                 properties: {
                                                     id: { type: "number" },
-                                                    name: { type: "string" },
+                                                    orderId: { type: "number" },
+                                                    productId: {
+                                                        type: "number",
+                                                    },
                                                     price: { type: "number" },
                                                     quantity: {
                                                         type: "number",
                                                     },
+                                                    size: { type: "string" },
+                                                    product: {
+                                                        type: "object",
+                                                        properties: {
+                                                            id: {
+                                                                type: "number",
+                                                            },
+                                                            name: {
+                                                                type: "string",
+                                                            },
+                                                            images: {},
+                                                        },
+                                                    },
                                                 },
                                             },
                                         },
+                                        shippingCost: { type: "number" },
                                         paymentMethod: { type: "string" },
-                                        shippingAddress: { type: "object" },
                                         createdAt: {
                                             type: "string",
                                             format: "date-time",

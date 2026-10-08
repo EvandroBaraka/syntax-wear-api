@@ -156,7 +156,7 @@ export const updateOrderSchema = z.object({
         .object({
             cep: z.string().regex(/^\d{8}$/, "CEP deve ter 8 dígitos"),
             street: z.string().min(1, "Rua é obrigatória"),
-            number: z.string().min(1, "Número é obrigatório"),
+            number: z.number().min(1, "Número é obrigatório"),
             complement: z.string().optional(),
             neighborhood: z.string().min(1, "Bairro é obrigatório"),
             city: z.string().min(1, "Cidade é obrigatória"),

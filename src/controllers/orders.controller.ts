@@ -21,13 +21,11 @@ export const listOrders = async (
 
     // Extrair userId e role do token JWT
     const user = request.user as any;
-    const requestingUserId = user.userId;
-    const isAdmin = user.role === "ADMIN";
+    const requestingUserId = user.id;
 
     const result = await getOrders(
         filters as OrderFilters,
         requestingUserId,
-        isAdmin,
     );
     reply.status(200).send(result);
 };

@@ -9,10 +9,12 @@ interface OrderItems {
 
 interface CreateStripeCheckoutServiceRequest {
     products: OrderItems[];
+    orderId: number;
 }
 
 export const createStripeCheckoutService = async ({
-    products
+    products,
+    orderId
 }: CreateStripeCheckoutServiceRequest) => {
 
     if (!process.env.STRIPE_SECRET_KEY) {
@@ -26,6 +28,9 @@ export const createStripeCheckoutService = async ({
     const session = await stripe.checkout.sessions.create({
         payment_method_types: ["card"],
         mode: "payment",
+        metadata: {
+            orderId: String(orderId), //CAMPO ALTERADO PARA STRING, POIS O METADATA DO STRIPE SÓ ACEITA STRING
+        },
         line_items: products.map((product) => ({
             price_data: {
                 currency: "brl",
@@ -36,7 +41,8 @@ export const createStripeCheckoutService = async ({
             },
             quantity: product.quantity,
         })),
-        success_url: `http://localhost:5173/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        // success_url: `http://localhost:5173/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+        success_url: `http://localhost:5173/account/orders?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `http://localhost:5173/checkout/cancel`,
     });
 

@@ -6,26 +6,11 @@ import { CreateOrder, OrderFilters, UpdateOrder } from "../types";
 export const getOrders = async (
     filters: OrderFilters = {},
     requestingUserId: number,
-    isAdmin: boolean,
 ) => {
-    const {
-        page = 1,
-        limit = 10,
-        status,
-        userId,
-        startDate,
-        endDate,
-    } = filters;
+    const { page = 1, limit = 10, status, startDate, endDate } = filters;
 
     const where: any = {};
-
-    // Se não é admin, forçar filtro por userId do usuário autenticado
-    if (!isAdmin) {
-        where.userId = requestingUserId;
-    } else if (userId) {
-        // Se é admin e passou userId no filtro, usar o filtro
-        where.userId = userId;
-    }
+    where.userId = requestingUserId;
 
     if (status) {
         where.status = status;
@@ -48,12 +33,27 @@ export const getOrders = async (
     const skip = (Number(page) - 1) * Number(limit);
     const take = Number(limit);
 
+    console.log("var where", where);
+
     const [orders, total] = await Promise.all([
         prisma.order.findMany({
             where,
             orderBy: { createdAt: "desc" },
             skip,
             take,
+            include: {
+                items: {
+                    include: {
+                        product: {
+                            select: {
+                                id: true,
+                                name: true,
+                                images: true,
+                            }
+                        }
+                    }
+                }
+            },
         }),
         prisma.order.count({ where }),
     ]);
@@ -163,7 +163,9 @@ export const createOrder = async (data: CreateOrder) => {
                 userId: data.userId,
                 total,
                 status: OrderStatus.PENDING,
-                shippingAddress: JSON.parse(JSON.stringify(data.shippingAddress)),
+                shippingAddress: JSON.parse(
+                    JSON.stringify(data.shippingAddress),
+                ),
                 shippingCost,
                 paymentMethod: data.paymentMethod,
                 items: {

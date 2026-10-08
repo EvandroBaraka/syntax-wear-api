@@ -5,20 +5,14 @@ import { createOrder } from "../services/orders.service";
 
 export class StripeController {
     async createCheckoutSession(request: FastifyRequest, reply: FastifyReply) {
-        const { 
-            items, 
-            shippingAddress, 
-            paymentMethod, 
-            userId, 
-            shippingCost 
-        } = createOrderSchema.parse(request.body);
-
+        const { items, shippingAddress, paymentMethod, userId, shippingCost } =
+            createOrderSchema.parse(request.body);
         const order = await createOrder({
             items,
             shippingAddress,
             paymentMethod,
             userId,
-            shippingCost
+            shippingCost,
         });
 
         const products = order.items.map((item) => ({
@@ -28,7 +22,10 @@ export class StripeController {
             quantity: item.quantity,
         }));
 
-        const { sessionId } = await createStripeCheckoutService({ products });
+        const { sessionId } = await createStripeCheckoutService({
+            products,
+            orderId: order.id,
+        });
 
         return reply.status(200).send({ sessionId });
     }
